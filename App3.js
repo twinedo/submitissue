@@ -1,0 +1,333 @@
+/* eslint-disable react-native/no-inline-styles */
+import React, {useState, useEffect} from 'react';
+import {
+  View,
+  Text,
+  StatusBar,
+  Image,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  FlatList,
+} from 'react-native';
+import RNPickerSelect from 'react-native-picker-select';
+import ReasonCategoryAPI from './src/api/ReasonCategoryAPI';
+// import {Picker} from '@react-native-community/picker';
+
+const App = () => {
+  const [state, setState] = useState({
+    category: '',
+    reason: '',
+    description: '',
+    image: [],
+  });
+
+  const [pic, setPic] = useState([
+    {
+      key: '0',
+      value:
+        // 'https://www.freelogodesign.org/file/app/client/thumb/c04ba0c0-32f8-4fc2-be5c-496d05041448_200x200.png',
+        'test',
+    },
+  ]);
+
+  const [stateReasonCategory, setStateReasonCategory] = useState({
+    pickerValueHolder: [],
+    selectedValue: '',
+  });
+
+  const DataCategory = {
+    category: 'Incident',
+  };
+
+  useEffect(() => {
+    getReasonCategory();
+  }, []);
+
+  const getReasonCategory = async () => {
+    await ReasonCategoryAPI.get('/trip/reasoncategorylist')
+      .then((response) => {
+        console.log(response.data);
+        setStateReasonCategory({
+          pickerValueHolder: [response.data],
+        });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  // const servicesItems = stateReasonCategory.pickerValueHolder.map((s, i) => {
+  //   return (
+  //     <Picker.Item
+  //       label={s.reasonCategoryTripName}
+  //       value={s.reasonCategoryTripName}
+  //       key={i.reasonCategoryTripID}
+  //     />
+  //   );
+  // });
+
+  const valueCategory = (value) => {
+    console.log(value);
+
+    setState({
+      ...state,
+      category: value,
+    });
+  };
+
+  const ValueReason = (value) => {
+    console.log(value);
+    setState({
+      ...state,
+      reason: value,
+    });
+  };
+
+  const ValueDescription = (value) => {
+    console.log(value);
+    setState({
+      ...state,
+      description: value,
+    });
+  };
+
+  // const pressHandler = (key) => {
+  //   setPic((prevPic) => {
+  //     return prevPic.filter((picture) => picture.key !== key);
+  //   });
+  // };
+
+  const handleDelete = (key) => {
+    setPic((prevPic) => {
+      return prevPic.filter((picture) => picture.key !== key);
+    });
+  };
+
+  const pressHandler = () => {
+    setPic([
+      ...pic,
+      {
+        key: (Math.random() + 1).toString(),
+        value: state.description,
+      },
+    ]);
+
+    const abc = [...pic.map((val) => val.value)];
+
+    setState({
+      ...state,
+      image: abc,
+    });
+  };
+
+  const addFoto = () => {
+    let newArray = [];
+
+    // setState({
+    //   ...state,
+    //   image: pic.map((val) => val.value),
+    // });
+
+    setPic([
+      ...pic,
+      {
+        key: (Math.random() + 1).toString(),
+        value: state.description,
+      },
+    ]);
+
+    const abc = [...pic.map((val) => val.value)];
+
+    setState({
+      ...state,
+      image: abc,
+    });
+
+    newArray.concat(...pic.map((val) => val.value));
+    console.log(pic);
+  };
+
+  const SubmitHandler = () => {
+    // const newArray = [];
+    const abc = pic.map((val) => val.value);
+
+    // console.log('ini data value dari pic' + abc);
+
+    setState({
+      ...state,
+      // image: pic.map((val) => val.value),
+      image: abc,
+    });
+    console.log(state);
+    console.log('ini state' + JSON.stringify(state));
+  };
+
+  return (
+    <>
+      {/* Status Bar */}
+      <StatusBar backgroundColor="#19B2FF" />
+
+      {/* Main View */}
+
+      <View style={styles.mainView}>
+        {/* Toolbar */}
+        <View style={styles.viewToolbar}>
+          <Image source={require('./src/assets/back.png')} />
+          <Text style={styles.textToolbar}>Submit Issue</Text>
+        </View>
+
+        {/* Main Body */}
+        <View style={styles.mainBody}>
+          <Text style={styles.title}>Reason Category</Text>
+          <View style={styles.viewPicker}>
+            <RNPickerSelect
+              onValueChange={(value) => valueCategory(value)}
+              placeholder={placeholderCategory}
+              items={[
+                {label: 'Incident', value: 'Incident'},
+                {label: 'Unable To Unload', value: 'Unable To Unload'},
+                {label: 'Goods Refused', value: 'Goods Refused'},
+                {label: 'Information', value: 'Information'},
+                {label: 'Warning', value: 'Warning'},
+              ]}
+            />
+          </View>
+          <Text style={styles.title}>Reason</Text>
+          <View style={styles.viewPicker}>
+            <RNPickerSelect
+              onValueChange={(value) => ValueReason(value)}
+              placeholder={placeholderReason}
+              items={[
+                {label: 'Heavy Traffic', value: 'Heavy Traffic'},
+                {label: 'Broken Vehicle', value: 'Broken Vehicle'},
+                {label: 'Flat Tire', value: 'Flat Tire'},
+                {label: 'Accident', value: 'Accident'},
+              ]}
+            />
+          </View>
+
+          <Text style={styles.title}>Description</Text>
+          <TextInput
+            style={styles.textInput}
+            multiline={true}
+            placeholder="Describe Issue"
+            onChangeText={ValueDescription}
+          />
+          <Text style={styles.title}>Add Image</Text>
+          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            <View style={{alignSelf: 'center'}}>
+              <FlatList
+                data={pic}
+                horizontal
+                renderItem={({item, index}) => {
+                  return (
+                    <>
+                      <TouchableOpacity
+                        key={item.key}
+                        onPress={() => pressHandler()}
+                        style={{
+                          width: 70,
+                          height: 70,
+                          alignSelf: 'center',
+                          marginHorizontal: 3,
+                          borderRadius: 4,
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}>
+                        {/*<Image
+                          source={{uri: item.value}}
+                          style={{height: 70, width: 70, resizeMode: 'contain'}}
+                        />*/}
+                        <Text>{item.value}</Text>
+                      </TouchableOpacity>
+                    </>
+                  );
+                }}
+              />
+            </View>
+            {/*{pic.length === 5 ? null : (
+              <TouchableOpacity onPress={addFoto}>
+                <Image source={require('./src/assets/addImage.png')} />
+              </TouchableOpacity>
+            )}*/}
+          </View>
+
+          <TouchableOpacity style={styles.submitButton} onPress={SubmitHandler}>
+            <Text style={styles.textButton}>Submit</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </>
+  );
+};
+
+const placeholderCategory = {
+  label: 'Select Reason Category...',
+  color: 'red',
+};
+
+const placeholderReason = {
+  label: 'Select Reason...',
+  color: 'red',
+};
+
+const styles = StyleSheet.create({
+  mainView: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
+  viewToolbar: {
+    backgroundColor: '#19B2FF',
+    height: 50,
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 15,
+  },
+  textToolbar: {
+    color: 'white',
+    fontFamily: 'Montserrat',
+    fontWeight: 'bold',
+    fontSize: 14,
+    paddingStart: 14,
+  },
+  mainBody: {
+    flex: 1,
+    marginVertical: 10,
+    marginHorizontal: 10,
+  },
+  title: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    marginVertical: 8,
+  },
+  viewPicker: {
+    borderWidth: 1,
+    borderColor: '#C4C4C4',
+    borderRadius: 5,
+  },
+  textInput: {
+    padding: 8,
+    borderWidth: 1,
+    borderRadius: 5,
+    borderColor: '#C4C4C4',
+    height: 150,
+    textAlignVertical: 'top',
+  },
+  submitButton: {
+    marginTop: 16,
+    backgroundColor: '#FF2500',
+    height: 35,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 5,
+  },
+  textButton: {
+    color: 'white',
+    fontWeight: '700',
+    fontSize: 16,
+  },
+});
+
+export default App;
