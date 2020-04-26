@@ -5442,6 +5442,11 @@ react-is@^16.12.0, react-is@^16.8.1, react-is@^16.8.4, react-is@^16.8.6:
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.13.1.tgz#789729a4dc36de2999dc156dd6c1d9c18cea56a4"
   integrity sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==
 
+react-native-actions-sheet@^0.2.6:
+  version "0.2.6"
+  resolved "https://registry.yarnpkg.com/react-native-actions-sheet/-/react-native-actions-sheet-0.2.6.tgz#b8425dc9baeaa7f560d6c5b0ba571172e2c0bf93"
+  integrity sha512-X9cwC7PefizigS12axA0OqZ24eqfCsyYKcASgzm/Q3MwujT0r3JryTBASsIFCDrLOHqXUgo0xPZRzIGxlm9vEQ==
+
 react-native-image-crop-picker@^0.28.0:
   version "0.28.0"
   resolved "https://registry.yarnpkg.com/react-native-image-crop-picker/-/react-native-image-crop-picker-0.28.0.tgz#f121669853278dc14baf14ba25b8e6524b0c234c"

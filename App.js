@@ -3,13 +3,15 @@ import {StyleSheet, View} from 'react-native';
 import AllComponent from './src/pages/AllComponent';
 import ReasonCategory from './src/pages/ReasonCategory';
 import AddImage from './src/pages/AddImage';
+import ImageCropper from './src/pages/ImageCropper';
 
 const App = () => {
   return (
     <View>
       {/*<AllComponent />*/}
       {/* <ReasonCategory />*/}
-      <AddImage />
+      {/* <AddImage /> */}
+      <ImageCropper />
     </View>
   );
 };
