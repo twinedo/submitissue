@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import RNPickerSelect from 'react-native-picker-select';
 import ReasonCategoryAPI from '../api/ReasonCategoryAPI';
-// import {Picker} from '@react-native-community/picker';
+
 
 const AllComponent = () => {
   const [state, setState] = useState({
@@ -66,16 +66,6 @@ const AllComponent = () => {
         console.log(error);
       });
   };
-
-  // const servicesItems = stateReasonCategory.pickerValueHolder.map((s, i) => {
-  //   return (
-  //     <Picker.Item
-  //       label={s.reasonCategoryTripName}
-  //       value={s.reasonCategoryTripName}
-  //       key={i.reasonCategoryTripID}
-  //     />
-  //   );
-  // });
 
   const valueCategory = (value) => {
     console.log(value);
@@ -168,7 +158,7 @@ const AllComponent = () => {
         <View style={styles.mainBody}>
           <Text style={styles.title}>Reason Category</Text>
           <View style={styles.viewPicker}>
-            {/*<RNPickerSelect
+            <RNPickerSelect
               onValueChange={(value) => valueCategory(value)}
               placeholder={placeholderCategory}
               items={[
@@ -178,7 +168,7 @@ const AllComponent = () => {
                 {label: 'Information', value: 'Information'},
                 {label: 'Warning', value: 'Warning'},
               ]}
-            />*/}
+            />
             {/*<RNPickerSelect
               onValueChange={(value) => valueCategory(value)}
               placeholder={placeholderCategory}

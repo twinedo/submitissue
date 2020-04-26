@@ -1,7 +1,14 @@
 /* eslint-disable no-alert */
 /* eslint-disable react-native/no-inline-styles */
 import React, {useEffect, useState, useReducer} from 'react';
-import {StyleSheet, Text, View, TextInput, Button} from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  Button,
+  ActivityIndicator,
+} from 'react-native';
 import ReasonCategoryAPI from '../api/ReasonCategoryAPI';
 import RNPickerSelect from 'react-native-picker-select';
 import {Picker} from '@react-native-community/picker';
@@ -123,59 +130,65 @@ const ReasonCategory = () => {
 
   return (
     <View style={{margin: 10}}>
-      <Text style={styles.title}>Reason Category</Text>
-      <View style={styles.viewPicker}>
-        <Picker
-          selectedValue={state.selectedCategory}
-          style={{
-            height: 50,
-            width: '100%',
-          }}
-          prompt="Select Reason Category"
-          onValueChange={(itemValue) => setReasonFromCategory(itemValue)}>
-          {state.category.map((catTripName) => {
-            return (
-              <Picker.Item
-                label={catTripName.reasonCategoryTripName}
-                value={catTripName.reasonCategoryTripName}
-                key={catTripName.reasonCategoryTripID}
-              />
-            );
-          })}
-        </Picker>
-      </View>
+      {state.loading ? (
+        <ActivityIndicator size="large" color="#0000ff" />
+      ) : (
+        <>
+          <Text style={styles.title}>Reason Category</Text>
+          <View style={styles.viewPicker}>
+            <Picker
+              selectedValue={state.selectedCategory}
+              style={{
+                height: 50,
+                width: '100%',
+              }}
+              prompt="Select Reason Category"
+              onValueChange={(itemValue) => setReasonFromCategory(itemValue)}>
+              {state.category.map((catTripName) => {
+                return (
+                  <Picker.Item
+                    label={catTripName.reasonCategoryTripName}
+                    value={catTripName.reasonCategoryTripName}
+                    key={catTripName.reasonCategoryTripID}
+                  />
+                );
+              })}
+            </Picker>
+          </View>
 
-      <Text style={styles.title}>Reason</Text>
-      <View style={styles.viewPicker}>
-        <Picker
-          selectedValue={state.selectedReason}
-          style={{
-            height: 50,
-            width: '100%',
-          }}
-          prompt="Select Reason"
-          onValueChange={(itemValue) => setSelectedReason(itemValue)}>
-          {state.reason.map((reasonTripName) => {
-            return (
-              <Picker.Item
-                label={reasonTripName.reasonTripName}
-                value={reasonTripName.reasonTripName}
-                key={reasonTripName.reasonTripID}
-              />
-            );
-          })}
-        </Picker>
-      </View>
+          <Text style={styles.title}>Reason</Text>
+          <View style={styles.viewPicker}>
+            <Picker
+              selectedValue={state.selectedReason}
+              style={{
+                height: 50,
+                width: '100%',
+              }}
+              prompt="Select Reason"
+              onValueChange={(itemValue) => setSelectedReason(itemValue)}>
+              {state.reason.map((reasonTripName) => {
+                return (
+                  <Picker.Item
+                    label={reasonTripName.reasonTripName}
+                    value={reasonTripName.reasonTripName}
+                    key={reasonTripName.reasonTripID}
+                  />
+                );
+              })}
+            </Picker>
+          </View>
 
-      <Text style={styles.title}>Description</Text>
-      <TextInput
-        style={styles.textInput}
-        multiline={true}
-        placeholder="Describe Issue"
-        onChangeText={descriptionHandler}
-        value={state.description}
-      />
-      <Button title="Submit" onPress={submitHandler} />
+          <Text style={styles.title}>Description</Text>
+          <TextInput
+            style={styles.textInput}
+            multiline={true}
+            placeholder="Describe Issue"
+            onChangeText={descriptionHandler}
+            value={state.description}
+          />
+          <Button title="Submit" onPress={submitHandler} />
+        </>
+      )}
     </View>
   );
 };
