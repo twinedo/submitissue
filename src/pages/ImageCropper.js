@@ -87,16 +87,6 @@ const ImageCropper = () => {
           style={styles.scrollView}>
           <View>
             <Text style={{fontSize: 20}}>DIBAWAH INI IMAGE CROPPER</Text>
-            <TouchableOpacity
-              onPress={cameraCropperHandler}
-              style={styles.button}>
-              <Text style={styles.buttonText}>Camera Cropper</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={galleryCropperHandler}
-              style={styles.button}>
-              <Text style={styles.buttonText}>Gallery Cropper</Text>
-            </TouchableOpacity>
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
               <View style={{alignSelf: 'center'}}>
                 <FlatList

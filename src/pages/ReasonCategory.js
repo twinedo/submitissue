@@ -74,7 +74,9 @@ const ReasonCategory = () => {
 
   useEffect(() => {
     getCategoryList();
-  }, []);
+    if (state.selectedCategory === '') {
+      setReasonFromCategory('Incident');
+  }}, []);
 
   const getCategoryList = async () => {
     await ReasonCategoryAPI.get('/trip/reasoncategorylist')
@@ -131,13 +133,15 @@ const ReasonCategory = () => {
   return (
     <View style={{margin: 10}}>
       {state.loading ? (
-        <ActivityIndicator size="large" color="#0000ff" />
+        <View style={{margin: 10, flex: 1}}>
+          <ActivityIndicator size="large" color="#0000ff" />
+        </View>
       ) : (
         <>
           <Text style={styles.title}>Reason Category</Text>
           <View style={styles.viewPicker}>
             <Picker
-              selectedValue={state.selectedCategory}
+              selectedValue={state.selectedCategory || 'Incident'}
               style={{
                 height: 50,
                 width: '100%',
