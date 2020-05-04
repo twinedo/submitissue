@@ -21,6 +21,7 @@ import ReasonCategoryAPI from '../api/ReasonCategoryAPI';
 import {Picker} from '@react-native-community/picker';
 import ImageCropPicker from 'react-native-image-crop-picker';
 import ActionSheet from 'react-native-actions-sheet';
+import ReactNativeZoomableView from '@dudigital/react-native-zoomable-view/src/ReactNativeZoomableView';
 
 const actionSheetRef = createRef();
 
@@ -380,7 +381,7 @@ const FixSubmit = () => {
                 </View>
               </ActionSheet>
               <Modal visible={modalVisible} animationType="slide">
-                <View style={{flex: 1, backgroundColor: 'black'}}>
+                <View style={{flex: 1}}>
                   <TouchableOpacity
                     style={{
                       ...StyleSheet.absoluteFillObject,
@@ -397,7 +398,21 @@ const FixSubmit = () => {
                     <Text style={{fontSize: 16, fontWeight: 'bold'}}>X</Text>
                   </TouchableOpacity>
                   {modalItem != null ? (
-                    <Image style={styles.zoomedImg} source={{uri: modalItem}} />
+                    <ReactNativeZoomableView
+                      maxZoom={1.5}
+                      minZoom={1}
+                      zoomStep={0.5}
+                      initialZoom={1}
+                      bindToBorders={true}
+                      captureEvent={true}
+                      style={{
+                        backgroundColor: 'black',
+                      }}>
+                      <Image
+                        style={styles.zoomedImg}
+                        source={{uri: modalItem}}
+                      />
+                    </ReactNativeZoomableView>
                   ) : null}
                 </View>
               </Modal>

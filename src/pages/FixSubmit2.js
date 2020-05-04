@@ -14,7 +14,6 @@ import {
   FlatList,
   Alert,
   Modal,
-  Animated,
   TouchableOpacity,
 } from 'react-native';
 import ReasonCategoryAPI from '../api/ReasonCategoryAPI';
@@ -22,6 +21,11 @@ import {Picker} from '@react-native-community/picker';
 import ImageCropPicker from 'react-native-image-crop-picker';
 import ActionSheet from 'react-native-actions-sheet';
 import ReactNativeZoomableView from '@dudigital/react-native-zoomable-view/src/ReactNativeZoomableView';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import StorageAPI from '../api/StorageAPI';
+import CreateIssueAPI from '../api/CreateIssueAPI';
+import axios from 'axios';
+import Upload from 'react-native-background-upload';
 
 const actionSheetRef = createRef();
 
@@ -33,6 +37,7 @@ const initialState = {
   reason: [],
   selectedReason: '',
   description: '',
+  raw: [],
 };
 
 const reducer = (state, action) => {
@@ -66,6 +71,18 @@ const reducer = (state, action) => {
         ...state,
         loading: false,
         description: action.description,
+      };
+    case 'SUCCESS_FOTO_UPLOAD':
+      return {
+        ...state,
+        loading: false,
+        raw: action.raw,
+      };
+    case 'DELETE_FOTO':
+      return {
+        ...state,
+        loading: false,
+        raw: state.raw.filter((prevPic) => prevPic.key != action.key),
       };
     case 'FETCH_ERROR':
       return {
@@ -142,8 +159,8 @@ const FixSubmit2 = () => {
   };
 
   const setModal = (item, index) => {
-    console.log('modal: ' + item.uri);
-    setModalItem(item.uri);
+    console.log('modal: ' + item.issueProofPhoto);
+    setModalItem(item.issueProofPhoto);
     setModalVisible(true);
   };
 
@@ -154,33 +171,104 @@ const FixSubmit2 = () => {
       cropperStatusBarColor: '#19B2FF',
       cropperToolbarColor: '#19B2FF',
       cropperToolbarTitle: 'Choose Image',
-    }).then((image) => {
-      console.log(image);
-      setCropperSingle([
-        ...cropperSingle,
-        {
-          key: (Math.random() + 1).toString(),
-          uri: image.path,
-        },
-      ]);
-    });
+    })
+      .then(async (image) => {
+        console.log(image);
+        await StorageAPI.post('/tppicture/upload', {
+          userID: 'TK-TRP-202004271817240000008',
+          data: {
+            file: image.path.replace('file://', ''),
+          },
+        })
+          .then((response) => {
+            console.log(response);
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+
+        setCropperSingle([
+          ...cropperSingle,
+          {
+            key: (Math.random() + 1).toString(),
+            uri: image.path,
+          },
+        ]);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   };
 
   const galleryCropperHandler = () => {
     ImageCropPicker.openPicker({
       cropping: true,
+      includeBase64: true,
       cropperStatusBarColor: '#19B2FF',
       cropperToolbarColor: '#19B2FF',
       cropperToolbarTitle: 'Choose Image',
-    }).then((image) => {
-      setCropperSingle([
-        ...cropperSingle,
-        {
-          key: (Math.random() + 1).toString(),
-          uri: image.path,
-        },
-      ]);
-    });
+    })
+      .then(async (image) => {
+        const options = {
+          url:
+            'https://d-storage.truckking.id/tppicture/upload?userID=TK-TRP-202004271817240000008',
+          path: image.path.replace('file://', ''),
+          method: 'POST',
+          field: 'file',
+          type: 'multipart',
+          notification: {
+            enabled: true,
+          },
+          useUtf8Charset: true,
+        };
+
+        Upload.startUpload(options)
+          .then((uploadId) => {
+            console.log('Upload started');
+            Upload.addListener('progress', uploadId, (data) => {
+              console.log(`Progress: ${data.progress}%`);
+            });
+            Upload.addListener('error', uploadId, (data) => {
+              console.log(`Error: ${data.error}%`);
+            });
+            Upload.addListener('cancelled', uploadId, (data) => {
+              console.log('Cancelled!');
+              console.log(data);
+            });
+            Upload.addListener('completed', uploadId, (data) => {
+              // data includes responseCode: number and responseBody: Object
+              console.log('Completed!');
+              alert('Berhasil Upload Foto!');
+              console.log(JSON.parse(data.responseBody).name);
+              dispatch({
+                type: 'SUCCESS_FOTO_UPLOAD',
+                raw: [
+                  ...state.raw,
+                  {
+                    key: (Math.random() + 1).toString(),
+                    issueProofPhoto: JSON.parse(data.responseBody).name,
+                  },
+                ],
+              });
+              // setCropperSingle([
+              //   ...cropperSingle,
+              //   {
+              //     key: (Math.random() + 1).toString(),
+              //     uri: JSON.parse(data.responseBody).name,
+              //   },
+              // ]);
+            });
+          })
+          .catch((err) => {
+            console.log('Upload error!', err);
+            alert('Upload error!', err);
+          });
+
+        console.log(image);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   };
 
   const setDeletePict = (key) => {
@@ -196,10 +284,11 @@ const FixSubmit2 = () => {
         {
           text: 'OK',
           onPress: () =>
-            setCropperSingle((prevPic) => {
-              console.log(prevPic);
-              return prevPic.filter((picture) => picture.key !== key);
-            }),
+            // setCropperSingle((prevPic) => {
+            //   console.log(prevPic);
+            //   return prevPic.filter((picture) => picture.key !== key);
+            // })
+            dispatch({type: 'DELETE_FOTO', key: key}),
         },
       ],
       {cancelable: true},
@@ -212,9 +301,54 @@ const FixSubmit2 = () => {
       'category: ' + state.selectedCategory + '\n',
       'reason: ' + state.selectedReason + '\n',
       'description: ' + state.description + '\n',
+      'raw: ' + JSON.stringify(state.raw) + '\n',
     );
 
-    console.log(cropperSingle);
+    Alert.alert(
+      'Confirm Submit Issue',
+      'You are about to submit Issue, are you sure?',
+      [
+        {
+          text: 'No',
+          onPress: () => console.log('Cancel Pressed'),
+          style: 'cancel',
+        },
+        {
+          text: 'Yes',
+          onPress: postSubmit,
+          style: 'default',
+        },
+      ],
+      {cancelable: true},
+    );
+  };
+
+  const postSubmit = () => {
+    console.log('OK Pressed');
+
+    var myHeaders = new Headers();
+    myHeaders.append(
+      'Authorization',
+      'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX3JvbGUiOiJEcml2ZXIiLCJhdWQiOlsiYWxsc3RvcmUiXSwiY29tcGFueV9pZCI6IlRLLVRSU0NNUC0yMDE5MTAwOTE4MzQ1MDAwMDAwMDEiLCJ1c2VyX2lkIjoiVEstRFJWLTIwMTkxMDA5MTIwODEwMDAwMDAwNCIsInVzZXJfbmFtZSI6InRhbmFrYS55b2dpQHlhaG9vLmNvbSIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdLCJjb21wYW55X25hbWUiOiJQVC4gRmFsbGluIFVuaXRlZCIsImV4cCI6MTU4ODY1OTI1MiwiYXV0aG9yaXRpZXMiOlsiRHJpdmVyIl0sImp0aSI6IjViZDdjYmIyLTZhMjEtNGExOC1hNzcxLTYyNTYzMTUwZDQ4MyIsImNsaWVudF9pZCI6InRydWNraW5nY2xpZW50In0.E2pSQcTQqe14OTCZPUcjq-3sluhcP6zvZZx3FoBz2bc',
+    );
+    myHeaders.append('Content-Type', 'application/json');
+
+    var raw = JSON.stringify(state.raw);
+
+    var requestOptions = {
+      method: 'POST',
+      headers: myHeaders,
+      body: raw,
+      redirect: 'follow',
+    };
+
+    fetch(
+      `https://d-trip.truckking.id/trip/create-issue?issueAssignedTripID=TK-TRP-202004241441050000007&issueReasonCategoryTripName=${state.selectedCategory}&issueReasonTripName=${state.selectedReason}&issueTripDescription=${state.description}`,
+      requestOptions,
+    )
+      .then((response) => response.text())
+      .then((result) => console.log(result))
+      .catch((error) => console.log('error', error));
   };
 
   return (
@@ -310,7 +444,7 @@ const FixSubmit2 = () => {
                     }}>
                     <FlatList
                       horizontal
-                      data={cropperSingle}
+                      data={state.raw}
                       renderItem={({item, index}) => {
                         return (
                           <>
@@ -336,7 +470,7 @@ const FixSubmit2 = () => {
                                 <Text style={{color: 'white'}}>X</Text>
                               </TouchableOpacity>
                               <Image
-                                source={{uri: item.uri}}
+                                source={{uri: item.issueProofPhoto}}
                                 style={{
                                   width: 70,
                                   height: 70,
@@ -363,6 +497,10 @@ const FixSubmit2 = () => {
                 headerAlwaysVisible
                 gestureEnabled
                 footerHeight={10}
+                bounceOnOpen
+                elevation={10}
+                springOffset={100}
+                indicatorColor="#B7B7"
                 footerAlwaysVisible={true}>
                 <View style={{margin: 20}}>
                   <Text style={styles.textButtonSheet}>
@@ -371,11 +509,13 @@ const FixSubmit2 = () => {
                   <TouchableOpacity
                     onPress={cameraCropperHandler}
                     style={styles.buttonSheet}>
+                    <Icon name="camera" size={24} color="#000" />
                     <Text style={styles.textMenu}>Camera</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={galleryCropperHandler}
                     style={styles.buttonSheet}>
+                    <Icon name="photo" size={24} color="#000" />
                     <Text style={styles.textMenu}>Gallery</Text>
                   </TouchableOpacity>
                 </View>
@@ -476,7 +616,8 @@ const styles = StyleSheet.create({
   buttonSheet: {
     width: '100%',
     height: 50,
-    justifyContent: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   textButtonSheet: {
     fontSize: 18,
@@ -486,6 +627,8 @@ const styles = StyleSheet.create({
   },
   textMenu: {
     fontSize: 16,
+    marginLeft: 10,
+    fontWeight: '600',
   },
   zoomedImg: {
     height: '100%',

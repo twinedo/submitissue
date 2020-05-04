@@ -79,6 +79,8 @@ target 'SubmitIssue' do
 
   pod 'RNGestureHandler', :path => '../node_modules/react-native-gesture-handler'
 
+  pod 'react-native-background-upload', :path => '../node_modules/react-native-background-upload'
+
   target 'SubmitIssueTests' do
     inherit! :complete
     # Pods for testing
