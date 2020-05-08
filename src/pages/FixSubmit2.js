@@ -27,6 +27,7 @@ import CreateIssueAPI from '../api/CreateIssueAPI';
 import axios from 'axios';
 import Upload from 'react-native-background-upload';
 
+
 const actionSheetRef = createRef();
 
 const initialState = {
@@ -100,7 +101,7 @@ const reducer = (state, action) => {
 
 const FixSubmit2 = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
-  const [cropperSingle, setCropperSingle] = useState([]);
+  // const [cropperSingle, setCropperSingle] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [modalItem, setModalItem] = useState('');
 
@@ -172,28 +173,56 @@ const FixSubmit2 = () => {
       cropperToolbarColor: '#19B2FF',
       cropperToolbarTitle: 'Choose Image',
     })
-      .then(async (image) => {
-        console.log(image);
-        await StorageAPI.post('/tppicture/upload', {
-          userID: 'TK-TRP-202004271817240000008',
-          data: {
-            file: image.path.replace('file://', ''),
+      .then((image) => {
+        const options = {
+          url:
+            'https://d-storage.truckking.id/tppicture/upload?userID=TK-TRP-202004271817240000008',
+          path: image.path.replace('file://', ''),
+          method: 'POST',
+          field: 'file',
+          type: 'multipart',
+          notification: {
+            enabled: true,
           },
-        })
-          .then((response) => {
-            console.log(response);
+          useUtf8Charset: true,
+        };
+
+        Upload.startUpload(options)
+          .then((uploadId) => {
+            console.log('Upload started');
+            Upload.addListener('progress', uploadId, (data) => {
+              console.log(`Progress: ${data.progress}%`);
+            });
+            Upload.addListener('error', uploadId, (data) => {
+              console.log(`Error: ${data.error}%`);
+            });
+            Upload.addListener('cancelled', uploadId, (data) => {
+              console.log('Cancelled!');
+              console.log(data);
+            });
+            Upload.addListener('completed', uploadId, (data) => {
+              // data includes responseCode: number and responseBody: Object
+              console.log('Completed!');
+              alert('Berhasil Upload Foto!');
+              console.log(JSON.parse(data.responseBody).name);
+              dispatch({
+                type: 'SUCCESS_FOTO_UPLOAD',
+                raw: [
+                  ...state.raw,
+                  {
+                    key: (Math.random() + 1).toString(),
+                    issueProofPhoto: JSON.parse(data.responseBody).name,
+                  },
+                ],
+              });
+            });
           })
-          .catch((error) => {
-            console.log(error);
+          .catch((err) => {
+            console.log('Upload error!', err);
+            alert('Upload error!', err);
           });
 
-        setCropperSingle([
-          ...cropperSingle,
-          {
-            key: (Math.random() + 1).toString(),
-            uri: image.path,
-          },
-        ]);
+        console.log(image);
       })
       .catch((error) => {
         console.log(error);
@@ -208,7 +237,7 @@ const FixSubmit2 = () => {
       cropperToolbarColor: '#19B2FF',
       cropperToolbarTitle: 'Choose Image',
     })
-      .then(async (image) => {
+      .then((image) => {
         const options = {
           url:
             'https://d-storage.truckking.id/tppicture/upload?userID=TK-TRP-202004271817240000008',
@@ -484,7 +513,7 @@ const FixSubmit2 = () => {
                       }}
                     />
                   </View>
-                  {cropperSingle.length > 4 ? null : (
+                  {state.raw.length > 4 ? null : (
                     <TouchableOpacity onPress={addFoto} style={{}}>
                       <Image source={require('../assets/addImage.png')} />
                     </TouchableOpacity>

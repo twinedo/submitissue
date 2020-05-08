@@ -5,14 +5,16 @@ import ReasonCategory from './src/pages/ReasonCategory';
 import ImageCropper2 from './src/pages/ImageCropper2';
 import FixSubmit from './src/pages/FixSubmit';
 import FixSubmit2 from './src/pages/FixSubmit2';
+import SeeIssue from './src/pages/SeeIssue';
+
 console.disableYellowBox = true;
 const App = () => {
   return (
     <>
-      <FixSubmit2 />
+      <SeeIssue />
+      {/* <FixSubmit2 /> */}
       {/*<AllComponent />*/}
       {/* <ReasonCategory /> */}
-      {/* <AddImage /> */}
       {/* <ImageCropper2 /> */}
     </>
   );
