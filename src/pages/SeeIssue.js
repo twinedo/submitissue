@@ -1,6 +1,6 @@
 /* eslint-disable no-alert */
 /* eslint-disable react-native/no-inline-styles */
-import React, {useEffect, useState, useReducer} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   StyleSheet,
   Text,
@@ -17,7 +17,7 @@ import {
 import ReactNativeZoomableView from '@dudigital/react-native-zoomable-view/src/ReactNativeZoomableView';
 import axios from 'axios';
 
-let width = Dimensions.get('screen').width / 2.5;
+let width = Dimensions.get('screen').width / 3.5;
 
 const SeeIssue = () => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -89,9 +89,9 @@ const SeeIssue = () => {
                 <Text style={styles.title}>Photos of Issue</Text>
                 <FlatList
                   data={fetchPhoto}
-                  numColumns={2}
-                  columnWrapperStyle={{justifyContent: 'space-around'}}
                   horizontal={false}
+                  numColumns={3}
+                  key={3}
                   keyExtractor={(item) => item.id.toString()}
                   extraData={fetchPhoto}
                   renderItem={({item}) => {
@@ -101,7 +101,7 @@ const SeeIssue = () => {
                         style={{
                           width: width,
                           height: width,
-                          marginVertical: 4,
+                          margin: 4,
                         }}>
                         <Image
                           source={{uri: item.download_url}}

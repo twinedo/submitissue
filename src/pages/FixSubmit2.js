@@ -83,7 +83,7 @@ const reducer = (state, action) => {
       return {
         ...state,
         loading: false,
-        raw: state.raw.filter((prevPic) => prevPic.key != action.key),
+        raw: state.raw.filter((prevPic) => prevPic.key !== action.key),
       };
     case 'FETCH_ERROR':
       return {

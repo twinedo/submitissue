@@ -1,17 +1,18 @@
 import React from 'react';
 import {StyleSheet, View} from 'react-native';
-import AllComponent from './src/pages/AllComponent';
-import ReasonCategory from './src/pages/ReasonCategory';
-import ImageCropper2 from './src/pages/ImageCropper2';
 import FixSubmit from './src/pages/FixSubmit';
 import FixSubmit2 from './src/pages/FixSubmit2';
 import SeeIssue from './src/pages/SeeIssue';
+import ActiveTaskUnloading from './src/pages/ActiveTaskUnloading';
+import ActiveTaskDropOff from './src/pages/ActiveTaskDropOff3';
 
 console.disableYellowBox = true;
 const App = () => {
   return (
     <>
-      <SeeIssue />
+      {/* <ActiveTaskUnloading /> */}
+      <ActiveTaskDropOff />
+      {/* <SeeIssue /> */}
       {/* <FixSubmit2 /> */}
       {/*<AllComponent />*/}
       {/* <ReasonCategory /> */}
