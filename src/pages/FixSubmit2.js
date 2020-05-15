@@ -358,7 +358,7 @@ const FixSubmit2 = () => {
     var myHeaders = new Headers();
     myHeaders.append(
       'Authorization',
-      'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX3JvbGUiOiJEcml2ZXIiLCJhdWQiOlsiYWxsc3RvcmUiXSwiY29tcGFueV9pZCI6IlRLLVRSU0NNUC0yMDE5MTAwOTE4MzQ1MDAwMDAwMDEiLCJ1c2VyX2lkIjoiVEstRFJWLTIwMTkxMDA5MTIwODEwMDAwMDAwNCIsInVzZXJfbmFtZSI6InRhbmFrYS55b2dpQHlhaG9vLmNvbSIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdLCJjb21wYW55X25hbWUiOiJQVC4gRmFsbGluIFVuaXRlZCIsImV4cCI6MTU4ODY1OTI1MiwiYXV0aG9yaXRpZXMiOlsiRHJpdmVyIl0sImp0aSI6IjViZDdjYmIyLTZhMjEtNGExOC1hNzcxLTYyNTYzMTUwZDQ4MyIsImNsaWVudF9pZCI6InRydWNraW5nY2xpZW50In0.E2pSQcTQqe14OTCZPUcjq-3sluhcP6zvZZx3FoBz2bc',
+      'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX3JvbGUiOiJEcml2ZXIiLCJhdWQiOlsiYWxsc3RvcmUiXSwiY29tcGFueV9pZCI6IlRLLVRSU0NNUC0yMDE5MTAwOTE4MzQ1MDAwMDAwMDEiLCJ1c2VyX2lkIjoiVEstRFJWLTIwMTkxMDA5MTIwODEwMDAwMDAwNCIsInVzZXJfbmFtZSI6InRhbmFrYS55b2dpQHlhaG9vLmNvbSIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdLCJjb21wYW55X25hbWUiOiJQVC4gRmFsbGluIFVuaXRlZCIsImV4cCI6MTU4OTU2NTE1OCwiYXV0aG9yaXRpZXMiOlsiRHJpdmVyIl0sImp0aSI6ImVjN2E0ODcyLWIxNmQtNGQ4NC05YmUyLTUyOTg5MWU4ODRhMiIsImNsaWVudF9pZCI6InRydWNraW5nY2xpZW50In0.Fvc-hw5-dv0nmanYTeKHADfg5FEOIVYazV-iWOTlN2g',
     );
     myHeaders.append('Content-Type', 'application/json');
 
@@ -372,7 +372,7 @@ const FixSubmit2 = () => {
     };
 
     fetch(
-      `https://d-trip.truckking.id/trip/create-issue?issueAssignedTripID=TK-TRP-202004241441050000007&issueReasonCategoryTripName=${state.selectedCategory}&issueReasonTripName=${state.selectedReason}&issueTripDescription=${state.description}`,
+      `https://d-trip.truckking.id/trip/create-issue?issueAssignedTripID=TK-TRP-202005100910330000023&issueReasonCategoryTripName=${state.selectedCategory}&issueReasonTripName=${state.selectedReason}&issueTripDescription=${state.description}`,
       requestOptions,
     )
       .then((response) => response.text())
@@ -520,7 +520,12 @@ const FixSubmit2 = () => {
                   )}
                 </ScrollView>
               </View>
-              <Button title="Submit" onPress={submitHandler} />
+              {state.raw.length == 0 || state.description == '' ? (
+                <Button disabled title="Submit" onPress={submitHandler} />
+              ) : (
+                <Button title="Submit" onPress={submitHandler} />
+              )}
+
               <ActionSheet
                 ref={actionSheetRef}
                 headerAlwaysVisible

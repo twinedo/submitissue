@@ -11,9 +11,9 @@ const App = () => {
   return (
     <>
       {/* <ActiveTaskUnloading /> */}
-      <ActiveTaskDropOff />
+      {/* <ActiveTaskDropOff /> */}
       {/* <SeeIssue /> */}
-      {/* <FixSubmit2 /> */}
+      <FixSubmit2 />
       {/*<AllComponent />*/}
       {/* <ReasonCategory /> */}
       {/* <ImageCropper2 /> */}
