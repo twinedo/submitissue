@@ -31,7 +31,7 @@ import ActionSheet from 'react-native-actions-sheet';
 import ReactNativeZoomableView from '@dudigital/react-native-zoomable-view/src/ReactNativeZoomableView';
 import Upload from 'react-native-background-upload';
 import OrderAPI from '../api/OrderAPI';
-import Dialog, {DialogContent} from 'react-native-popup-dialog';
+import RNFetchBlob from 'react-native-fetch-blob';
 
 const actionSheetRef = createRef();
 let dialogComponent = createRef();
@@ -265,10 +265,6 @@ const ActiveTaskDropOff3 = ({data}) => {
   };
 
   const setDeletePict = (key) => {
-    var dat = [...poNumber];
-    var index = dat.findIndex((obj) => obj.orderNumber === key);
-    dat[index].image = '';
-
     Alert.alert(
       'Confirmation',
       `Are you sure want to delete ${key} foto?`,
@@ -280,7 +276,12 @@ const ActiveTaskDropOff3 = ({data}) => {
         },
         {
           text: 'OK',
-          onPress: () => setPoNumber(dat),
+          onPress: () => {
+            var dat = [...poNumber];
+            var index = dat.findIndex((obj) => obj.orderNumber === key);
+            dat[index].image = '';
+            setPoNumber(dat);
+          },
         },
       ],
       {cancelable: true},
@@ -290,6 +291,80 @@ const ActiveTaskDropOff3 = ({data}) => {
   const uploadPOD = (orderNumber, image) => {
     console.log('upload: ' + orderNumber);
     console.log('upload: ' + image);
+
+    // var myHeaders = new Headers();
+    // myHeaders.append('Content-Type', 'multipart/form-data');
+    // myHeaders.append('Accept', 'application/json');
+    // myHeaders.append(
+    //   'Authorization',
+    //   'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX3JvbGUiOiJEcml2ZXIiLCJhdWQiOlsiYWxsc3RvcmUiXSwiY29tcGFueV9pZCI6IlRLLVRSU0NNUC0yMDE5MTAwOTE4MzQ1MDAwMDAwMDEiLCJ1c2VyX2lkIjoiVEstRFJWLTIwMTkxMDA5MTIwODEwMDAwMDAwNCIsInVzZXJfbmFtZSI6InRhbmFrYS55b2dpQHlhaG9vLmNvbSIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdLCJjb21wYW55X25hbWUiOiJQVC4gRmFsbGluIFVuaXRlZCIsImV4cCI6MTU4OTU2NTE1OCwiYXV0aG9yaXRpZXMiOlsiRHJpdmVyIl0sImp0aSI6ImVjN2E0ODcyLWIxNmQtNGQ4NC05YmUyLTUyOTg5MWU4ODRhMiIsImNsaWVudF9pZCI6InRydWNraW5nY2xpZW50In0.Fvc-hw5-dv0nmanYTeKHADfg5FEOIVYazV-iWOTlN2g',
+    // );
+    // myHeaders.append('otherHeader', 'foo');
+
+    // var formData = new FormData();
+    // formData.append('podProof[]', image);
+    // formData.append('podDescription', 'Testing: ' + orderNumber);
+    // formData.append('orderID', 'TK-ORD-202051307182200000004');
+    // formData.append('shipmentID', 'TK-LOADS-202051208030216900000004');
+    // formData.append('podUploadBy', 'podUploadBy');
+    // formData.append('podLastUpdateBy', 'podLastUpdateBy');
+
+    // var requestOptions = {
+    //   method: 'POST',
+    //   headers: myHeaders,
+    //   body: formData,
+    //   redirect: 'follow',
+    //   field: 'file',
+    //   type: 'multipart',
+    // };
+
+    // fetch(
+    //   'http://dev.order.dejavu2.fiyaris.id/api/v1/order_prof_of_deliveries/',
+    //   requestOptions,
+    // )
+    //   .then((response) => {
+    //     alert(JSON.stringify(response));
+    //     console.log(response);
+    //   })
+    //   .then((result) => {
+    //     console.log(result);
+    //     alert('Success Upload POD: ' + result);
+    //   })
+    //   .catch((error) => console.log('error', error));
+
+    RNFetchBlob.fetch(
+      'POST',
+      'http://dev.order.dejavu2.fiyaris.id/api/v1/order_prof_of_deliveries/',
+      {
+        Authorization:
+          'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX3JvbGUiOiJEcml2ZXIiLCJhdWQiOlsiYWxsc3RvcmUiXSwiY29tcGFueV9pZCI6IlRLLVRSU0NNUC0yMDE5MTAwOTE4MzQ1MDAwMDAwMDEiLCJ1c2VyX2lkIjoiVEstRFJWLTIwMTkxMDA5MTIwODEwMDAwMDAwNCIsInVzZXJfbmFtZSI6InRhbmFrYS55b2dpQHlhaG9vLmNvbSIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdLCJjb21wYW55X25hbWUiOiJQVC4gRmFsbGluIFVuaXRlZCIsImV4cCI6MTU4OTU2NTE1OCwiYXV0aG9yaXRpZXMiOlsiRHJpdmVyIl0sImp0aSI6ImVjN2E0ODcyLWIxNmQtNGQ4NC05YmUyLTUyOTg5MWU4ODRhMiIsImNsaWVudF9pZCI6InRydWNraW5nY2xpZW50In0.Fvc-hw5-dv0nmanYTeKHADfg5FEOIVYazV-iWOTlN2g',
+        otherHeader: 'foo',
+        'Content-Type': 'multipart/form-data',
+      },
+      [
+        {
+          name: 'podProof[]',
+          filename: `${orderNumber}.png`,
+          type: 'image/png',
+          data: image,
+        },
+        {name: 'podDescription', data: 'Testing: ' + orderNumber},
+        {name: 'orderID', data: 'TK-ORD-202051307182200000004'},
+        {name: 'shipmentID', data: 'TK-LOADS-202051208030216900000004'},
+        {name: 'podUploadBy', data: 'podUploadBy'},
+        {name: 'podLastUpdateBy', data: 'podLastUpdateBy'},
+      ],
+    )
+      .then((resp) => {
+        console.log(JSON.parse(resp.data));
+
+        if (JSON.parse(resp.data).success === true) {
+          alert('Upload Foto Success. ' + JSON.parse(resp.data).message);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const makeCall = () => {
