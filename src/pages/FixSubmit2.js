@@ -27,7 +27,6 @@ import CreateIssueAPI from '../api/CreateIssueAPI';
 import axios from 'axios';
 import Upload from 'react-native-background-upload';
 
-
 const actionSheetRef = createRef();
 
 const initialState = {
@@ -352,32 +351,43 @@ const FixSubmit2 = () => {
     );
   };
 
-  const postSubmit = () => {
+  const postSubmit = async () => {
     console.log('OK Pressed');
 
-    var myHeaders = new Headers();
-    myHeaders.append(
-      'Authorization',
-      'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX3JvbGUiOiJEcml2ZXIiLCJhdWQiOlsiYWxsc3RvcmUiXSwiY29tcGFueV9pZCI6IlRLLVRSU0NNUC0yMDE5MTAwOTE4MzQ1MDAwMDAwMDEiLCJ1c2VyX2lkIjoiVEstRFJWLTIwMTkxMDA5MTIwODEwMDAwMDAwNCIsInVzZXJfbmFtZSI6InRhbmFrYS55b2dpQHlhaG9vLmNvbSIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdLCJjb21wYW55X25hbWUiOiJQVC4gRmFsbGluIFVuaXRlZCIsImV4cCI6MTU4OTU2NTE1OCwiYXV0aG9yaXRpZXMiOlsiRHJpdmVyIl0sImp0aSI6ImVjN2E0ODcyLWIxNmQtNGQ4NC05YmUyLTUyOTg5MWU4ODRhMiIsImNsaWVudF9pZCI6InRydWNraW5nY2xpZW50In0.Fvc-hw5-dv0nmanYTeKHADfg5FEOIVYazV-iWOTlN2g',
-    );
-    myHeaders.append('Content-Type', 'application/json');
+    // var myHeaders = new Headers();
+    // myHeaders.append(
+    //   'Authorization',
+    //   'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX3JvbGUiOiJEcml2ZXIiLCJhdWQiOlsiYWxsc3RvcmUiXSwiY29tcGFueV9pZCI6IlRLLVRSU0NNUC0yMDE5MTAwOTE4MzQ1MDAwMDAwMDEiLCJ1c2VyX2lkIjoiVEstRFJWLTIwMTkxMDA5MTIwODEwMDAwMDAwNCIsInVzZXJfbmFtZSI6InRhbmFrYS55b2dpQHlhaG9vLmNvbSIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdLCJjb21wYW55X25hbWUiOiJQVC4gRmFsbGluIFVuaXRlZCIsImV4cCI6MTU4OTU2NTE1OCwiYXV0aG9yaXRpZXMiOlsiRHJpdmVyIl0sImp0aSI6ImVjN2E0ODcyLWIxNmQtNGQ4NC05YmUyLTUyOTg5MWU4ODRhMiIsImNsaWVudF9pZCI6InRydWNraW5nY2xpZW50In0.Fvc-hw5-dv0nmanYTeKHADfg5FEOIVYazV-iWOTlN2g',
+    // );
+    // myHeaders.append('Content-Type', 'application/json');
 
     var raw = JSON.stringify(state.raw);
 
-    var requestOptions = {
-      method: 'POST',
-      headers: myHeaders,
-      body: raw,
-      redirect: 'follow',
-    };
+    // var requestOptions = {
+    //   method: 'POST',
+    //   headers: myHeaders,
+    //   body: raw,
+    //   redirect: 'follow',
+    // };
 
-    fetch(
-      `https://d-trip.truckking.id/trip/create-issue?issueAssignedTripID=TK-TRP-202005100910330000023&issueReasonCategoryTripName=${state.selectedCategory}&issueReasonTripName=${state.selectedReason}&issueTripDescription=${state.description}`,
-      requestOptions,
+    // fetch(
+    //   `https://d-trip.truckking.id/trip/create-issue?issueAssignedTripID=TK-TRP-202005100910330000023&issueReasonCategoryTripName=${state.selectedCategory}&issueReasonTripName=${state.selectedReason}&issueTripDescription=${state.description}`,
+    //   requestOptions,
+    // )
+    //   .then((response) => response.text())
+    //   .then((result) => console.log(result))
+    //   .catch((error) => console.log('error', error));
+
+    CreateIssueAPI.post(
+      `/trip/create-issue?issueAssignedTripID=TK-TRP-202005100910330000023&issueReasonCategoryTripName=${state.selectedCategory}&issueReasonTripName=${state.selectedReason}&issueTripDescription=${state.description}`,
+      raw,
     )
-      .then((response) => response.text())
-      .then((result) => console.log(result))
-      .catch((error) => console.log('error', error));
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   return (

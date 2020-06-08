@@ -1,6 +1,6 @@
 /* eslint-disable no-alert */
 /* eslint-disable react-native/no-inline-styles */
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import {
   StyleSheet,
   Text,
@@ -16,17 +16,56 @@ import {
 } from 'react-native';
 import ReactNativeZoomableView from '@dudigital/react-native-zoomable-view/src/ReactNativeZoomableView';
 import axios from 'axios';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import {TouchableWithoutFeedback} from 'react-native-gesture-handler';
+import ServiceTripAPI from '../api/ServiceTrip';
 
-let width = Dimensions.get('screen').width / 3.5;
+let width = Dimensions.get('screen').width / 3.7;
+const nextActive = <AntDesign name="rightcircle" size={30} color="#19B2FF" />;
+const nextInActive = <AntDesign name="rightcircle" size={30} color="#C4C4C4" />;
+const prevActive = <AntDesign name="leftcircle" size={30} color="#19B2FF" />;
+const prevInactive = <AntDesign name="leftcircle" size={30} color="#C4C4C4" />;
 
-const SeeIssue = () => {
+const SeeIssue = ({route}) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalItem, setModalItem] = useState('');
   const [fetchPhoto, setFetchPhoto] = useState([]);
+  const [dataIssue, setDataIssue] = useState();
+  const issueTripID = 'TK-TRP-202005100910330000057';
+
+  let flatRef = useRef(null);
+  // console.log(issueTripID);
 
   useEffect(() => {
+    getDataIssue();
     getPhotoIssue();
   }, []);
+
+  const getDataIssue = async () => {
+    ServiceTripAPI.get('/trip/issuetrip/byissueid', {
+      params: {
+        issueTripID: issueTripID,
+      },
+    })
+      .then((response) => {
+        console.log(response);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+
+    ServiceTripAPI.get('/trip/issueproofdetailbyid', {
+      params: {
+        issueProofIssueTripID: 105,
+      },
+    })
+      .then((response) => {
+        console.log(response);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
 
   const getPhotoIssue = async () => {
     await axios
@@ -50,7 +89,7 @@ const SeeIssue = () => {
     <>
       {/* StatusBar */}
       <StatusBar backgroundColor="#19B2FF" />
-      {fetchPhoto === null ? (
+      {fetchPhoto === null && allIssue === '' ? (
         <View
           style={{
             flex: 1,
@@ -61,99 +100,186 @@ const SeeIssue = () => {
       ) : (
         <>
           {/* Main View */}
-
           <View style={styles.mainView}>
             {/* Toolbar */}
             <View style={styles.viewToolbar}>
-              <Image source={require('../assets/back.png')} />
+              <TouchableOpacity onPress={() => navigation.goBack()}>
+                <Image source={require('../assets/back.png')} />
+              </TouchableOpacity>
               <Text style={styles.textToolbar}>See Issue</Text>
             </View>
 
             {/* Main Body */}
-            <ScrollView>
-              <View style={styles.mainBody}>
-                <Text style={styles.title}>Reason Category</Text>
-                <View style={styles.viewPicker}>
-                  <Text>Reason Category yang dipilih</Text>
-                </View>
-
-                <Text style={styles.title}>Reason</Text>
-                <View style={styles.viewPicker}>
-                  <Text>Reason yang dipilih</Text>
-                </View>
-
-                <Text style={styles.title}>Description</Text>
-                <View style={styles.viewPicker}>
-                  <Text>Deskripsi dari API</Text>
-                </View>
-                <Text style={styles.title}>Photos of Issue</Text>
-                <FlatList
-                  data={fetchPhoto}
-                  horizontal={false}
-                  numColumns={3}
-                  key={3}
-                  keyExtractor={(item) => item.id.toString()}
-                  extraData={fetchPhoto}
-                  renderItem={({item}) => {
-                    return (
-                      <TouchableOpacity
-                        onPress={() => setModal(item)}
+            <FlatList
+              data={fetchPhoto}
+              horizontal
+              scrollEnabled={false}
+              ref={(c) => (flatRef = c)}
+              // keyExtractor={item => item.issueTripID.toString()}
+              renderItem={({item, index}) => {
+                return (
+                  <>
+                    <View style={{flexDirection: 'column'}}>
+                      <View
                         style={{
-                          width: width,
-                          height: width,
-                          margin: 4,
+                          flexDirection: 'row',
+                          justifyContent: 'flex-end',
+                          marginHorizontal: 10,
+                          marginTop: 10,
                         }}>
-                        <Image
-                          source={{uri: item.download_url}}
+                        <Text
                           style={{
-                            borderRadius: 10,
-                            width: width,
-                            height: width,
-                            resizeMode: 'cover',
-                          }}
-                        />
-                      </TouchableOpacity>
-                    );
-                  }}
-                />
-                <Modal visible={modalVisible} animationType="slide">
-                  <View style={{flex: 1}}>
-                    <TouchableOpacity
-                      style={{
-                        ...StyleSheet.absoluteFillObject,
-                        zIndex: 1,
-                        height: 30,
-                        width: 30,
-                        margin: 20,
-                        borderRadius: 20,
-                        backgroundColor: 'white',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                      }}
-                      onPress={() => setModalVisible(false)}>
-                      <Text style={{fontSize: 16, fontWeight: 'bold'}}>X</Text>
-                    </TouchableOpacity>
-                    {modalItem != null ? (
-                      <ReactNativeZoomableView
-                        maxZoom={1.5}
-                        minZoom={1}
-                        zoomStep={0.5}
-                        initialZoom={1}
-                        bindToBorders={true}
-                        captureEvent={true}
-                        style={{
-                          backgroundColor: 'black',
-                        }}>
-                        <Image
-                          style={styles.zoomedImg}
-                          source={{uri: modalItem}}
-                        />
-                      </ReactNativeZoomableView>
-                    ) : null}
-                  </View>
-                </Modal>
-              </View>
-            </ScrollView>
+                            textAlignVertical: 'center',
+                            marginRight: 10,
+                            fontWeight: 'bold',
+                            fontSize: 18,
+                            fontStyle: 'italic',
+                          }}>
+                          Issue #{index + 1}
+                        </Text>
+                        {index == 0 ? (
+                          <>
+                            <TouchableWithoutFeedback
+                              style={{marginRight: 8}}
+                              disabled>
+                              <Text>{prevInactive}</Text>
+                            </TouchableWithoutFeedback>
+                          </>
+                        ) : (
+                          <>
+                            <TouchableWithoutFeedback
+                              style={{marginRight: 8}}
+                              onPress={() =>
+                                flatRef.scrollToIndex({
+                                  animated: true,
+                                  index: index - 1,
+                                })
+                              }>
+                              <Text>{prevActive}</Text>
+                            </TouchableWithoutFeedback>
+                          </>
+                        )}
+                        {index == fetchPhoto.length - 1 ? (
+                          <>
+                            <TouchableWithoutFeedback
+                              style={{marginRight: 8}}
+                              disabled
+                              onPress={() =>
+                                flatRef.scrollToIndex({
+                                  animated: true,
+                                  index: index - 1,
+                                })
+                              }>
+                              <Text>{nextInActive}</Text>
+                            </TouchableWithoutFeedback>
+                          </>
+                        ) : (
+                          <>
+                            <TouchableWithoutFeedback
+                              title="next"
+                              onPress={() =>
+                                flatRef.scrollToIndex({
+                                  animated: true,
+                                  index: index + 1,
+                                })
+                              }>
+                              <Text>{nextActive}</Text>
+                            </TouchableWithoutFeedback>
+                          </>
+                        )}
+                      </View>
+                      <ScrollView>
+                        <View style={styles.mainBody}>
+                          <Text style={styles.title}>Reason Category</Text>
+                          <View style={styles.viewPicker}>
+                            <Text>{item.issueReasonCategoryTripName}</Text>
+                          </View>
+
+                          <Text style={styles.title}>Reason</Text>
+                          <View style={styles.viewPicker}>
+                            <Text>{item.issueReasonTripName}</Text>
+                          </View>
+
+                          <Text style={styles.title}>Description</Text>
+                          <View style={styles.viewPicker}>
+                            <Text>{item.issueTripDescription}</Text>
+                          </View>
+                          <Text style={styles.title}>Photos of Issue</Text>
+                          <FlatList
+                            data={fetchPhoto}
+                            horizontal={false}
+                            numColumns={3}
+                            key={3}
+                            keyExtractor={item => item.id.toString()}
+                            extraData={fetchPhoto}
+                            renderItem={({item}) => {
+                              return (
+                                <TouchableOpacity
+                                  onPress={() => setModal(item)}
+                                  style={{
+                                    width: width,
+                                    height: width,
+                                    margin: 8,
+                                  }}>
+                                  <Image
+                                    source={{uri: item.download_url}}
+                                    style={{
+                                      borderRadius: 10,
+                                      width: width,
+                                      height: width,
+                                      resizeMode: 'cover',
+                                    }}
+                                  />
+                                </TouchableOpacity>
+                              );
+                            }}
+                          />
+                          <Modal visible={modalVisible} animationType="slide">
+                            <View style={{flex: 1}}>
+                              <TouchableOpacity
+                                style={{
+                                  ...StyleSheet.absoluteFillObject,
+                                  zIndex: 1,
+                                  height: 30,
+                                  width: 30,
+                                  margin: 20,
+                                  borderRadius: 20,
+                                  backgroundColor: 'white',
+                                  justifyContent: 'center',
+                                  alignItems: 'center',
+                                }}
+                                onPress={() => setModalVisible(false)}>
+                                <Text
+                                  style={{fontSize: 16, fontWeight: 'bold'}}>
+                                  X
+                                </Text>
+                              </TouchableOpacity>
+                              {modalItem != null ? (
+                                <ReactNativeZoomableView
+                                  maxZoom={1.5}
+                                  minZoom={1}
+                                  zoomStep={0.5}
+                                  initialZoom={1}
+                                  bindToBorders={true}
+                                  captureEvent={true}
+                                  style={{
+                                    backgroundColor: 'black',
+                                  }}>
+                                  <Image
+                                    style={styles.zoomedImg}
+                                    source={{uri: modalItem}}
+                                  />
+                                </ReactNativeZoomableView>
+                              ) : null}
+                            </View>
+                          </Modal>
+                        </View>
+                      </ScrollView>
+                    </View>
+                  </>
+                );
+              }}
+            />
           </View>
         </>
       )}

@@ -32,7 +32,10 @@ import ReactNativeZoomableView from '@dudigital/react-native-zoomable-view/src/R
 import Upload from 'react-native-background-upload';
 import OrderAPI from '../api/OrderAPI';
 import RNFetchBlob from 'react-native-fetch-blob';
+import Icon from 'react-native-vector-icons/FontAwesome5';
 
+
+const myIcon = <Icon name="check" size={12} color="#FFF" />;
 const actionSheetRef = createRef();
 
 const TwitterIcon = () => (
@@ -42,7 +45,7 @@ const TwitterIcon = () => (
   />
 );
 
-const ActiveTaskDropOff3 = ({data}) => {
+const ActiveTaskDropOff4 = ({data}) => {
   // const {updateStatus} = useContext(OrderStatusContext);
   // const [orderId, setOrderId] = useState(data.orderID);
   // const [status, setStatus] = useState('dropoff');
@@ -81,6 +84,7 @@ const ActiveTaskDropOff3 = ({data}) => {
           let item = {
             orderNumber: value,
             image: '',
+            uploaded: false,
           };
           tmpOrder.push(item);
         });
@@ -136,7 +140,6 @@ const ActiveTaskDropOff3 = ({data}) => {
             Upload.addListener('completed', uploadId, (res) => {
               // data includes responseCode: number and responseBody: Object
               console.log('Completed!');
-              alert('Berhasil Upload Foto!');
               console.log(JSON.parse(res.responseBody).name);
               var dat = [...poNumber];
               var index = dat.findIndex((obj) => obj.orderNumber === odNumber);
@@ -248,6 +251,65 @@ const ActiveTaskDropOff3 = ({data}) => {
     console.log('upload: ' + orderNumber);
     console.log('upload: ' + image);
 
+    Alert.alert(
+      'Confirmation',
+      `Are you sure want to Upload foto with order number ${orderNumber}? Click OK cannot be cancelled`,
+      [
+        {
+          text: 'Cancel',
+          onPress: () => console.log('Cancel Pressed'),
+          style: 'cancel',
+        },
+        {
+          text: 'OK',
+          onPress: () => {
+            RNFetchBlob.fetch(
+              'POST',
+              'http://dev.order.dejavu2.fiyaris.id/api/v1/order_prof_of_deliveries/',
+              {
+                Authorization:
+                  'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX3JvbGUiOiJEcml2ZXIiLCJhdWQiOlsiYWxsc3RvcmUiXSwiY29tcGFueV9pZCI6IlRLLVRSU0NNUC0yMDE5MTAwOTE4MzQ1MDAwMDAwMDEiLCJ1c2VyX2lkIjoiVEstRFJWLTIwMTkxMDA5MTIwODEwMDAwMDAwNCIsInVzZXJfbmFtZSI6InRhbmFrYS55b2dpQHlhaG9vLmNvbSIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdLCJjb21wYW55X25hbWUiOiJQVC4gRmFsbGluIFVuaXRlZCIsImV4cCI6MTU4OTU2NTE1OCwiYXV0aG9yaXRpZXMiOlsiRHJpdmVyIl0sImp0aSI6ImVjN2E0ODcyLWIxNmQtNGQ4NC05YmUyLTUyOTg5MWU4ODRhMiIsImNsaWVudF9pZCI6InRydWNraW5nY2xpZW50In0.Fvc-hw5-dv0nmanYTeKHADfg5FEOIVYazV-iWOTlN2g',
+                otherHeader: 'foo',
+                'Content-Type': 'multipart/form-data',
+              },
+              [
+                {
+                  name: 'podProof[]',
+                  filename: `${orderNumber}.png`,
+                  type: 'image/png',
+                  data: image,
+                },
+                {name: 'podDescription', data: 'Testing: ' + orderNumber},
+                {name: 'orderID', data: 'TK-ORD-202051307182200000004'},
+                {name: 'shipmentID', data: 'TK-LOADS-202051208030216900000004'},
+                {name: 'podUploadBy', data: 'podUploadBy'},
+                {name: 'podLastUpdateBy', data: 'podLastUpdateBy'},
+              ],
+            )
+              .then((resp) => {
+                console.log(JSON.parse(resp.data));
+
+                if (JSON.parse(resp.data).success === true) {
+                  alert(
+                    'Upload Foto Success. ' + JSON.parse(resp.data).message,
+                  );
+                  var dat = [...poNumber];
+                  var index = dat.findIndex(
+                    (obj) => obj.orderNumber === orderNumber,
+                  );
+                  dat[index].uploaded = true;
+                  setPoNumber(dat);
+                  console.log(poNumber);
+                }
+              })
+              .catch((err) => {
+                console.log(err);
+              });
+          },
+        },
+      ],
+      {cancelable: true},
+    );
     // var myHeaders = new Headers();
     // myHeaders.append('Content-Type', 'multipart/form-data');
     // myHeaders.append('Accept', 'application/json');
@@ -287,40 +349,6 @@ const ActiveTaskDropOff3 = ({data}) => {
     //     alert('Success Upload POD: ' + result);
     //   })
     //   .catch((error) => console.log('error', error));
-
-    RNFetchBlob.fetch(
-      'POST',
-      'http://dev.order.dejavu2.fiyaris.id/api/v1/order_prof_of_deliveries/',
-      {
-        Authorization:
-          'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX3JvbGUiOiJEcml2ZXIiLCJhdWQiOlsiYWxsc3RvcmUiXSwiY29tcGFueV9pZCI6IlRLLVRSU0NNUC0yMDE5MTAwOTE4MzQ1MDAwMDAwMDEiLCJ1c2VyX2lkIjoiVEstRFJWLTIwMTkxMDA5MTIwODEwMDAwMDAwNCIsInVzZXJfbmFtZSI6InRhbmFrYS55b2dpQHlhaG9vLmNvbSIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdLCJjb21wYW55X25hbWUiOiJQVC4gRmFsbGluIFVuaXRlZCIsImV4cCI6MTU4OTU2NTE1OCwiYXV0aG9yaXRpZXMiOlsiRHJpdmVyIl0sImp0aSI6ImVjN2E0ODcyLWIxNmQtNGQ4NC05YmUyLTUyOTg5MWU4ODRhMiIsImNsaWVudF9pZCI6InRydWNraW5nY2xpZW50In0.Fvc-hw5-dv0nmanYTeKHADfg5FEOIVYazV-iWOTlN2g',
-        otherHeader: 'foo',
-        'Content-Type': 'multipart/form-data',
-      },
-      [
-        {
-          name: 'podProof[]',
-          filename: `${orderNumber}.png`,
-          type: 'image/png',
-          data: image,
-        },
-        {name: 'podDescription', data: 'Testing: ' + orderNumber},
-        {name: 'orderID', data: 'TK-ORD-202051307182200000004'},
-        {name: 'shipmentID', data: 'TK-LOADS-202051208030216900000004'},
-        {name: 'podUploadBy', data: 'podUploadBy'},
-        {name: 'podLastUpdateBy', data: 'podLastUpdateBy'},
-      ],
-    )
-      .then((resp) => {
-        console.log(JSON.parse(resp.data));
-
-        if (JSON.parse(resp.data).success === true) {
-          alert('Upload Foto Success. ' + JSON.parse(resp.data).message);
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
   };
 
   const makeCall = () => {
@@ -349,7 +377,6 @@ const ActiveTaskDropOff3 = ({data}) => {
           <View style={styles.sideTitle}>
             <Text style={styles.sideText}>Drop Off</Text>
           </View>
-
           <View style={{flex: 1}}>
             {/* PO number begin here */}
             <View style={{marginLeft: 10, marginTop: 8}}>
@@ -358,7 +385,7 @@ const ActiveTaskDropOff3 = ({data}) => {
             </View>
             {/* PO number end here */}
             {/* Order Number begin here */}
-            <View style={{marginLeft: 10, marginTop: 8, marginRight: 10}}>
+            <View style={{margin: 10}}>
               <Text style={styles.titleText}>Order Number</Text>
 
               <FlatList
@@ -372,93 +399,139 @@ const ActiveTaskDropOff3 = ({data}) => {
                           flex: 1,
                           flexDirection: 'row',
                           backgroundColor: '#F2F2F2',
-                          marginVertical: 8,
+                          marginBottom: 10,
+                          shadowColor: '#000',
+                          borderRadius: 10,
+                          shadowOffset: {
+                            width: 0,
+                            height: 2,
+                          },
+                          shadowOpacity: 0.25,
+                          shadowRadius: 3.5,
+                          elevation: 5,
                         }}>
                         <View
                           style={{
                             marginHorizontal: 8,
-                            height: 70,
+                            height: 84,
                             justifyContent: 'center',
                             flex: 1,
                           }}>
                           <Text style={styles.pText}>{item.orderNumber}</Text>
                         </View>
-                        <View style={{flex: 1, justifyContent: 'center'}}>
-                          <View>
-                            {item.image === '' ? (
+                        {item.uploaded == true ? (
+                          <View style={{flex: 2, justifyContent: 'center'}}>
+                            <View>
                               <TouchableOpacity
-                                onPress={() => alert('Silahkan masukkan foto')}
+                                onPress={() => alert('POD sudah terupload')}
                                 /* onPress={() => alert(item.orderNumber)} */
                                 style={{
-                                  height: 20,
-                                  width: 100,
-                                  backgroundColor: '#19B2FF',
+                                  height: 30,
+                                  width: 125,
+                                  backgroundColor: '#4DCB00',
                                   alignItems: 'center',
                                   justifyContent: 'center',
                                   borderRadius: 5,
-                                  marginBottom: 8,
                                 }}>
-                                <Text style={{color: 'white'}}>Upload</Text>
+                                <Text style={{color: 'white'}}>
+                                  Uploaded {myIcon}
+                                </Text>
                               </TouchableOpacity>
-                            ) : (
-                              <TouchableOpacity
-                                onPress={() =>
-                                  uploadPOD(item.orderNumber, item.image)
-                                }
-                                /* onPress={() => alert(item.orderNumber)} */
-                                style={{
-                                  height: 20,
-                                  width: 100,
-                                  backgroundColor: '#19B2FF',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  borderRadius: 5,
-                                  marginBottom: 8,
-                                }}>
-                                <Text style={{color: 'white'}}>Upload</Text>
-                              </TouchableOpacity>
-                            )}
+                            </View>
                           </View>
+                        ) : (
+                          <View style={{flex: 2, justifyContent: 'center'}}>
+                            <View>
+                              {item.image === '' ? (
+                                <TouchableOpacity
+                                  onPress={() =>
+                                    alert('Silahkan masukkan foto')
+                                  }
+                                  /* onPress={() => alert(item.orderNumber)} */
+                                  style={{
+                                    height: 20,
+                                    width: 125,
+                                    backgroundColor: '#19B2FF',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    borderRadius: 5,
+                                    marginBottom: 8,
+                                  }}>
+                                  <Text style={{color: 'white'}}>
+                                    Upload POD
+                                  </Text>
+                                </TouchableOpacity>
+                              ) : (
+                                <TouchableOpacity
+                                  onPress={() =>
+                                    uploadPOD(item.orderNumber, item.image)
+                                  }
+                                  /* onPress={() => alert(item.orderNumber)} */
+                                  style={{
+                                    height: 20,
+                                    width: 125,
+                                    backgroundColor: '#19B2FF',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    borderRadius: 5,
+                                    marginBottom: 8,
+                                  }}>
+                                  <Text style={{color: 'white'}}>
+                                    Upload POD
+                                  </Text>
+                                </TouchableOpacity>
+                              )}
+                            </View>
 
-                          <View>
-                            {item.image === '' ? (
-                              <TouchableOpacity
-                                /* onPress={() => setDeletePict(item.orderNumber)} */
-                                disabled
-                                style={{
-                                  height: 20,
-                                  width: 100,
-                                  backgroundColor: '#C4C4C4',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  borderRadius: 5,
-                                }}>
-                                <Text style={{color: 'white'}}>Delete</Text>
-                              </TouchableOpacity>
-                            ) : (
-                              <TouchableOpacity
-                                onPress={() => setDeletePict(item.orderNumber)}
-                                /* onPress={() =>
-                                  console.log('delete: ' + item.orderNumber)
-                                } */
-                                style={{
-                                  height: 20,
-                                  width: 100,
-                                  backgroundColor: 'red',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  borderRadius: 5,
-                                }}>
-                                <Text style={{color: 'white'}}>Delete</Text>
-                              </TouchableOpacity>
-                            )}
+                            <View>
+                              {item.image === '' || item.uploaded ? (
+                                <TouchableOpacity
+                                  disabled
+                                  style={{
+                                    height: 20,
+                                    width: 125,
+                                    backgroundColor: '#C4C4C4',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    borderRadius: 5,
+                                  }}>
+                                  <Text style={{color: 'white'}}>Delete</Text>
+                                </TouchableOpacity>
+                              ) : (
+                                <TouchableOpacity
+                                  onPress={() =>
+                                    setDeletePict(item.orderNumber)
+                                  }
+                                  style={{
+                                    height: 20,
+                                    width: 125,
+                                    backgroundColor: 'red',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    borderRadius: 5,
+                                  }}>
+                                  <Text style={{color: 'white'}}>Delete</Text>
+                                </TouchableOpacity>
+                              )}
+                            </View>
                           </View>
-                        </View>
-                        <View style={{flex: 1, alignItems: 'center'}}>
-                          {poNumber[index].image === '' ? (
+                        )}
+
+                        <View
+                          style={{
+                            flex: 1,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            marginRight: 4,
+                          }}>
+                          {item.image === '' ? (
                             <TouchableOpacity
+                              style={{
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                borderRadius: 20,
+                              }}
                               onPress={() => addFoto(item.orderNumber, index)}>
-                              {/* onPress={() => console.log('add: ' + item.orderNumber)}> */}
                               <Image
                                 source={require('../assets/addImage.png')}
                               />
@@ -476,6 +549,7 @@ const ActiveTaskDropOff3 = ({data}) => {
                                 style={{
                                   width: 70,
                                   height: 70,
+                                  borderRadius: 20,
                                   resizeMode: 'center',
                                   alignItems: 'center',
                                 }}
@@ -599,13 +673,17 @@ const ActiveTaskDropOff3 = ({data}) => {
             <View style={{marginLeft: 10, marginTop: 8}}>
               <Text style={styles.titleText}>Drop Off Schedule</Text>
               {/* <Text style={styles.pText}>
-                  {day}, {date}, {time}
-          </Text> */}
+            {day}, {date}, {time}
+    </Text> */}
               <Text style={{fontStyle: 'italic', fontSize: 10}}>
                 You must Arrive at Pick Up Location in:
               </Text>
               <Text
-                style={{fontStyle: 'italic', fontSize: 10, color: '#4DCB00'}}>
+                style={{
+                  fontStyle: 'italic',
+                  fontSize: 10,
+                  color: '#4DCB00',
+                }}>
                 1 Day 3 Hours 28 Minutes
               </Text>
             </View>
@@ -693,11 +771,8 @@ const styles = StyleSheet.create({
   },
   detail: {
     backgroundColor: '#fff',
-    // paddingRight:100,
-    // width:'100%',
     flexDirection: 'row',
     width: '98%',
-    // paddingBottom:10,
     borderRadius: 5,
     marginTop: 25,
     marginLeft: '0.2%',
@@ -710,6 +785,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
+    borderWidth: 3,
+    borderColor: 'red',
   },
   detailSchadule: {
     backgroundColor: '#fff',
@@ -747,6 +824,12 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontFamily: 'Montserrat',
   },
+  buttonSheet: {
+    width: '100%',
+    height: 50,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
 });
 
-export default ActiveTaskDropOff3;
+export default ActiveTaskDropOff4;
