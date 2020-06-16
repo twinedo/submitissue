@@ -53,8 +53,6 @@ const UpdatePOD = ({data}) => {
               'http://dev.order.dejavu2.fiyaris.id/api/v1/order_prof_of_deliveries/files/' +
               value.podProof,
             statusVerify: value.verifiedBy,
-            isUpdated: false,
-            isCompleted: false,
           };
           tmpOrder.push(item);
         });
@@ -354,105 +352,17 @@ const UpdatePOD = ({data}) => {
                           <Text style={styles.pText}>
                             OD-{item.orderNumber}123
                           </Text>
-                          <Text style={styles.pText, {color: 'red'}}>
+                        </View>
+                        <View
+                          style={{
+                            flex: 1,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                          }}>
+                          <Text style={(styles.pText, {color: 'red'})}>
                             {item.statusVerify}
                           </Text>
                         </View>
-                        {item.isUpdated == false &&
-                        item.isCompleted == false ? (
-                          <View
-                            style={{
-                              justifyContent: 'center',
-                            }}>
-                            <TouchableOpacity
-                              onPress={() =>
-                                updateHandler(item.orderNumber, item.image)
-                              }
-                              /* onPress={() => alert(item.orderNumber)} */
-                              style={{
-                                height: 20,
-                                width: 125,
-                                backgroundColor: '#19B2FF',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                borderRadius: 5,
-                              }}>
-                              <Text style={{color: 'white'}}>Update POD</Text>
-                            </TouchableOpacity>
-                          </View>
-                        ) : item.isUpdated == true &&
-                          item.isCompleted == false ? (
-                          <View
-                            style={{
-                              justifyContent: 'center',
-                            }}>
-                            {item.image == '' ? (
-                              <TouchableOpacity
-                                onPress={() => alert('Silahkan masukkan foto')}
-                                /* onPress={() => alert(item.orderNumber)} */
-                                style={{
-                                  height: 20,
-                                  width: 125,
-                                  backgroundColor: '#19B2FF',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  borderRadius: 5,
-                                  marginBottom: 8,
-                                }}>
-                                <Text style={{color: 'white'}}>Upload POD</Text>
-                              </TouchableOpacity>
-                            ) : (
-                              <TouchableOpacity
-                                onPress={() =>
-                                  uploadPOD(item.orderNumber, item.image)
-                                }
-                                /* onPress={() => alert(item.orderNumber)} */
-                                style={{
-                                  height: 20,
-                                  width: 125,
-                                  backgroundColor: '#19B2FF',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  borderRadius: 5,
-                                  marginBottom: 8,
-                                }}>
-                                <Text style={{color: 'white'}}>Upload POD</Text>
-                              </TouchableOpacity>
-                            )}
-                            <TouchableOpacity
-                              onPress={() =>
-                                cancelHandler(item.orderNumber, item.image)
-                              }
-                              style={{
-                                height: 20,
-                                width: 125,
-                                backgroundColor: 'red',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                borderRadius: 5,
-                              }}>
-                              <Text style={{color: 'white'}}>Cancel</Text>
-                            </TouchableOpacity>
-                          </View>
-                        ) : (
-                          <View style={{justifyContent: 'center'}}>
-                            <TouchableOpacity
-                              onPress={() => alert('POD sudah terupdate.')}
-                              /* onPress={() => alert(item.orderNumber)} */
-                              style={{
-                                height: 30,
-                                width: 125,
-                                backgroundColor: '#4DCB00',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                borderRadius: 5,
-                              }}>
-                              <Text style={{color: 'white'}}>
-                                Updated {checklistIcon}
-                              </Text>
-                            </TouchableOpacity>
-                          </View>
-                        )}
 
                         <View
                           style={{
