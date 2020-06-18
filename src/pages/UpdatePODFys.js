@@ -66,6 +66,7 @@ const UpdatePOD = ({data}) => {
       dataPOD.data.map((value) => {
         console.log(value);
         let item = {
+          id: (Math.random() + 1).toString(),
           orderNumber: value.podDescription,
           image:
             'http://dev.order.dejavu2.fiyaris.id/api/v1/order_prof_of_deliveries/files/' +
@@ -407,8 +408,9 @@ const UpdatePOD = ({data}) => {
 
               <FlatList
                 data={poNumber}
-                keyExtractor={(item) => item.orderNumber}
+                keyExtractor={(item) => item.id}
                 renderItem={({item, index}) => {
+                  console.log(item.id);
                   return (
                     <>
                       <View
@@ -439,6 +441,7 @@ const UpdatePOD = ({data}) => {
                             {item.statusVerify}
                           </Text>
                         </View>
+
                         {item.isUpdated == false &&
                         item.isCompleted == false ? (
                           <View
