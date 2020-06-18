@@ -75,7 +75,7 @@ const ActiveTaskDropOff4 = ({data}) => {
   }, []);
 
   const getPONumberList = async () => {
-    await OrderAPI.get('/api/v1/orders/TK-ORD-202051211261100000001')
+    await OrderAPI.get('/api/v1/orders/TK-ORD-202061711075500000011')
       .then((response) => {
         const mappingData = response.data.numberOrder.split(', ');
 
@@ -113,7 +113,7 @@ const ActiveTaskDropOff4 = ({data}) => {
       .then((image) => {
         const options = {
           url:
-            'https://d-storage.truckking.id/pictureorder/upload?orderID=TK-ORD-202051208030200000002',
+            'https://d-storage.truckking.id/pictureorder/upload?orderID=TK-ORD-202061711075500000011',
           path: image.path.replace('file://', ''),
           method: 'POST',
           field: 'file',
@@ -169,7 +169,7 @@ const ActiveTaskDropOff4 = ({data}) => {
       .then((image) => {
         const options = {
           url:
-            'https://d-storage.truckking.id/pictureorder/upload?orderID=TK-ORD-202051208030200000002',
+            'https://d-storage.truckking.id/pictureorder/upload?orderID=TK-ORD-202061711075500000011',
           path: image.path.replace('file://', ''),
           method: 'POST',
           field: 'file',
@@ -268,7 +268,7 @@ const ActiveTaskDropOff4 = ({data}) => {
               'http://dev.order.dejavu2.fiyaris.id/api/v1/order_prof_of_deliveries/',
               {
                 Authorization:
-                  'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX3JvbGUiOiJEcml2ZXIiLCJhdWQiOlsiYWxsc3RvcmUiXSwiY29tcGFueV9pZCI6IlRLLVRSU0NNUC0yMDE5MTAwOTE4MzQ1MDAwMDAwMDEiLCJ1c2VyX2lkIjoiVEstRFJWLTIwMTkxMDA5MTIwODEwMDAwMDAwNCIsInVzZXJfbmFtZSI6InRhbmFrYS55b2dpQHlhaG9vLmNvbSIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdLCJjb21wYW55X25hbWUiOiJQVC4gRmFsbGluIFVuaXRlZCIsImV4cCI6MTU4OTU2NTE1OCwiYXV0aG9yaXRpZXMiOlsiRHJpdmVyIl0sImp0aSI6ImVjN2E0ODcyLWIxNmQtNGQ4NC05YmUyLTUyOTg5MWU4ODRhMiIsImNsaWVudF9pZCI6InRydWNraW5nY2xpZW50In0.Fvc-hw5-dv0nmanYTeKHADfg5FEOIVYazV-iWOTlN2g',
+                  'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX3JvbGUiOiJEcml2ZXIiLCJhdWQiOlsiYWxsc3RvcmUiXSwiY29tcGFueV9pZCI6IlRLLVRSU0NNUC0yMDE5MTAwOTE4MzQ1MDAwMDAwMDEiLCJ1c2VyX2lkIjoiVEstRFJWLTIwMTkxMDA5MTIwODEwMDAwMDAwNCIsInVzZXJfbmFtZSI6InRhbmFrYS55b2dpQHlhaG9vLmNvbSIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdLCJjb21wYW55X25hbWUiOiJQVC4gRmFsbGluIFVuaXRlZCIsImV4cCI6MTU5MjQ4OTI2NiwiYXV0aG9yaXRpZXMiOlsiRHJpdmVyIl0sImp0aSI6ImE0MzFlMjJkLTc4ZDktNDM4Yy04YTljLTkzODQ3YTQ1MTk5ZSIsImNsaWVudF9pZCI6InRydWNraW5nY2xpZW50In0.HqZXwyCeiV4f7iz1tzMD_Q2s4awLUCqRdEPwXM8r7fc',
                 otherHeader: 'foo',
                 'Content-Type': 'multipart/form-data',
               },
@@ -279,9 +279,9 @@ const ActiveTaskDropOff4 = ({data}) => {
                   type: 'image/png',
                   data: image,
                 },
-                {name: 'podDescription', data: 'Testing: ' + orderNumber},
-                {name: 'orderID', data: 'TK-ORD-202051307182200000004'},
-                {name: 'shipmentID', data: 'TK-LOADS-202051208030216900000004'},
+                {name: 'podDescription', data: orderNumber},
+                {name: 'orderID', data: 'TK-ORD-202061711075500000011'},
+                // {name: 'shipmentID', data: 'TK-LOADS-202051208030216900000004'},
                 {name: 'podUploadBy', data: 'podUploadBy'},
                 {name: 'podLastUpdateBy', data: 'podLastUpdateBy'},
               ],

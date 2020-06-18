@@ -5,7 +5,7 @@ import FixSubmit2 from './src/pages/FixSubmit2';
 import SeeIssue from './src/pages/SeeIssue';
 import ActiveTaskUnloading from './src/pages/ActiveTaskUnloading';
 import ActiveTaskDropOff from './src/pages/ActiveTaskDropOff4';
-import UpdatePOD from './src/pages/UpdatePOD3';
+import UpdatePOD from './src/pages/UpdatePODFys';
 
 console.disableYellowBox = true;
 const App = () => {

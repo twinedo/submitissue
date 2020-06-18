@@ -320,12 +320,12 @@ const ActiveTaskUnloading = ({navigation}) => {
               <View style={{margin: 20}}>
                 <Text style={styles.textButtonSheet}>Choose Photo from...</Text>
                 <TouchableOpacity
-                  onPress={() => cameraCropperHandler(item.key)}
+                  onPress={() => cameraCropperHandler()}
                   style={styles.buttonSheet}>
                   <Text style={styles.textMenu}>Camera</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  onPress={() => galleryCropperHandler(item.id)}
+                  onPress={() => galleryCropperHandler()}
                   style={styles.buttonSheet}>
                   <Text style={styles.textMenu}>Gallery</Text>
                 </TouchableOpacity>

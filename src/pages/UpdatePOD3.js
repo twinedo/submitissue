@@ -10,6 +10,8 @@ import {
   Image,
   Modal,
   Alert,
+  Dimensions,
+  RefreshControl,
   SafeAreaView,
   Button,
 } from 'react-native';
@@ -22,17 +24,25 @@ import Upload from 'react-native-background-upload';
 import RNFetchBlob from 'react-native-fetch-blob';
 import axios from 'axios';
 import podAPI from '../api/podAPI';
+import {ScrollView} from 'react-native-gesture-handler';
 
 const checklistIcon = <Icon name="check" size={12} color="#FFF" />;
 const actionSheetRef = createRef();
+
+const width = Dimensions.get('screen').width;
+
+function wait(timeout) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, timeout);
+  });
+}
 
 const UpdatePOD = ({data}) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalItem, setModalItem] = useState('');
   const [poNumber, setPoNumber] = useState([]);
   const [statusPOD, setStatusPOD] = useState();
-  const [odNumber, setOdNumber] = useState('');
-  const [oldImage, setOldImage] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
   useEffect(() => {
     getDataPOD();
   }, []);
@@ -71,6 +81,7 @@ const UpdatePOD = ({data}) => {
     console.log(item.podDescription);
 
     setStatusPOD(item.verifiedBy);
+    // setStatusPOD('verified');
 
     return (
       <>
@@ -85,178 +96,210 @@ const UpdatePOD = ({data}) => {
     setModalVisible(true);
   };
 
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    alert('sudah refresh');
+
+    wait(2000).then(() => setRefreshing(false));
+  }, [refreshing]);
+
   return (
-    <View style={{flex: 1, backgroundColor: '#fff'}}>
-      <View style={{flex: 1, flexDirection: 'row'}}>
-        <View style={styles.detail}>
-          <View style={styles.sideTitle}>
-            <Text style={styles.sideText}>Completed</Text>
-          </View>
-          <View style={{flex: 1}}>
-            {/* PO number begin here */}
-            <View style={{marginLeft: 10, marginTop: 8}}>
-              <Text style={styles.titleText}>PO Number</Text>
-              <Text style={styles.pText}>10857557</Text>
-            </View>
-            {/* PO number end here */}
-            {/* Order Number begin here */}
-            <View style={{marginLeft: 10, marginTop: 8}}>
-              <Text style={styles.titleText}>Order Number</Text>
-
-              <FlatList
-                data={poNumber}
-                keyExtractor={(item) => item.id.toString()}
-                renderItem={({item, index}) => {
-                  return (
-                    <>
-                      <View
-                        style={{
-                          flex: 1,
-                          flexDirection: 'row',
-                          backgroundColor: '#F2F2F2',
-                          marginBottom: 10,
-                          shadowColor: '#000',
-                          borderRadius: 10,
-                          shadowOffset: {
-                            width: 0,
-                            height: 2,
-                          },
-                          shadowOpacity: 0.25,
-                          shadowRadius: 3.5,
-                          elevation: 5,
-                        }}>
-                        <View
-                          style={{
-                            marginLeft: 8,
-                            height: 84,
-                            justifyContent: 'center',
-                            flex: 1,
-                          }}>
-                          <Text style={styles.pText}>
-                            OD-{item.podDescription}
-                          </Text>
-                        </View>
-                        <View
-                          style={{
-                            flex: 1,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                          }}>
-                          {item.verifiedBy === 'unverified'
-                            ? statusnya(item)
-                            : statusnya(item)}
-                        </View>
-
-                        <View
-                          style={{
-                            flex: 1,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            marginRight: 4,
-                          }}>
-                          <TouchableOpacity
-                            onPress={() =>
-                              setModal(
-                                'http://dev.order.dejavu2.fiyaris.id/api/v1/order_prof_of_deliveries/files/' +
-                                  item.podProof,
-                                index,
-                              )
-                            }
-                            style={{
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              borderRadius: 20,
-                            }}>
-                            <Image
-                              source={{
-                                uri:
-                                  'http://dev.order.dejavu2.fiyaris.id/api/v1/order_prof_of_deliveries/files/' +
-                                  item.podProof,
-                              }}
-                              style={{
-                                width: 70,
-                                height: 70,
-                                borderRadius: 20,
-                                resizeMode: 'center',
-                                alignItems: 'center',
-                              }}
-                            />
-                          </TouchableOpacity>
-                        </View>
-                      </View>
-                    </>
-                  );
-                }}
-              />
-              <Modal visible={modalVisible} animationType="slide">
-                <View style={{flex: 1}}>
-                  <TouchableOpacity
-                    style={{
-                      ...StyleSheet.absoluteFillObject,
-                      zIndex: 1,
-                      height: 30,
-                      width: 30,
-                      margin: 20,
-                      borderRadius: 20,
-                      backgroundColor: 'white',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}
-                    onPress={() => setModalVisible(false)}>
-                    <Text style={{fontSize: 16, fontWeight: 'bold'}}>X</Text>
-                  </TouchableOpacity>
-                  {console.log(modalItem)}
-                  {modalItem != null ? (
-                    <ReactNativeZoomableView
-                      maxZoom={1.5}
-                      minZoom={1}
-                      zoomStep={0.5}
-                      initialZoom={1}
-                      bindToBorders={true}
-                      captureEvent={true}
-                      style={{
-                        backgroundColor: 'black',
-                      }}>
-                      <Image
-                        style={styles.zoomedImg}
-                        source={{uri: modalItem}}
-                      />
-                    </ReactNativeZoomableView>
-                  ) : null}
+    <SafeAreaView style={styles.container}>
+      <ScrollView
+        contentContainerStyle={styles.scrollView}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }>
+        <View style={{flex: 1, backgroundColor: '#F4F4F4'}}>
+          <View
+            style={{
+              width: width,
+              flex: 1,
+              flexDirection: 'row',
+            }}>
+            <View style={styles.detail}>
+              <View style={styles.sideTitle}>
+                <Text style={styles.sideText}>Completed</Text>
+              </View>
+              <View style={{flex: 1}}>
+                {/* PO number begin here */}
+                <View style={{marginLeft: 10, marginTop: 8}}>
+                  <Text style={styles.titleText}>PO Number</Text>
+                  <Text style={styles.pText}>10857557</Text>
                 </View>
-              </Modal>
-            </View>
-            {/* end order number */}
+                {/* PO number end here */}
+                {/* Order Number begin here */}
+                <View style={{marginLeft: 10, marginTop: 8}}>
+                  <Text style={styles.titleText}>Order Number</Text>
 
-            {/* pick up address begin here */}
-            <View style={{marginLeft: 10, marginTop: 8}}>
-              <Text style={styles.titleText}>Drop off Address</Text>
-              <Text style={styles.pText}>
-                Jl. ABC No. 5A, Banceuy, Bandung, Jawa Barat
-              </Text>
-            </View>
-            {/* and pick up address */}
-            <View style={{marginLeft: 10, marginTop: 8}}>
-              <Text style={styles.titleText}>Drop off Address</Text>
-              <Text style={styles.pText}>PT Banceuy Tunggal Jaya </Text>
+                  <FlatList
+                    data={poNumber}
+                    keyExtractor={(item) => item.id.toString()}
+                    renderItem={({item, index}) => {
+                      return (
+                        <>
+                          <View
+                            style={{
+                              flex: 1,
+                              flexDirection: 'row',
+                              backgroundColor: '#F2F2F2',
+                              marginBottom: 10,
+                              shadowColor: '#000',
+                              borderRadius: 10,
+                              shadowOffset: {
+                                width: 0,
+                                height: 2,
+                              },
+                              shadowOpacity: 0.25,
+                              shadowRadius: 3.5,
+                              elevation: 5,
+                            }}>
+                            <View
+                              style={{
+                                marginLeft: 8,
+                                height: 84,
+                                justifyContent: 'center',
+                                flex: 1,
+                              }}>
+                              <Text style={styles.pText}>
+                                OD-{item.podDescription}
+                              </Text>
+                            </View>
+                            <View
+                              style={{
+                                flex: 1,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                              }}>
+                              {item.verifiedBy === 'unverified'
+                                ? statusnya(item)
+                                : statusnya(item)}
+                            </View>
+
+                            <View
+                              style={{
+                                flex: 1,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                marginRight: 4,
+                              }}>
+                              <TouchableOpacity
+                                onPress={() =>
+                                  setModal(
+                                    'http://dev.order.dejavu2.fiyaris.id/api/v1/order_prof_of_deliveries/files/' +
+                                      item.podProof,
+                                    index,
+                                  )
+                                }
+                                style={{
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  borderRadius: 20,
+                                }}>
+                                <Image
+                                  source={{
+                                    uri:
+                                      'http://dev.order.dejavu2.fiyaris.id/api/v1/order_prof_of_deliveries/files/' +
+                                      item.podProof,
+                                  }}
+                                  style={{
+                                    width: 70,
+                                    height: 70,
+                                    borderRadius: 20,
+                                    resizeMode: 'center',
+                                    alignItems: 'center',
+                                  }}
+                                />
+                              </TouchableOpacity>
+                            </View>
+                          </View>
+                        </>
+                      );
+                    }}
+                  />
+                  <Modal visible={modalVisible} animationType="slide">
+                    <View style={{flex: 1}}>
+                      <TouchableOpacity
+                        style={{
+                          ...StyleSheet.absoluteFillObject,
+                          zIndex: 1,
+                          height: 30,
+                          width: 30,
+                          margin: 20,
+                          borderRadius: 20,
+                          backgroundColor: 'white',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                        }}
+                        onPress={() => setModalVisible(false)}>
+                        <Text style={{fontSize: 16, fontWeight: 'bold'}}>
+                          X
+                        </Text>
+                      </TouchableOpacity>
+                      {console.log(modalItem)}
+                      {modalItem != null ? (
+                        <ReactNativeZoomableView
+                          maxZoom={1.5}
+                          minZoom={1}
+                          zoomStep={0.5}
+                          initialZoom={1}
+                          bindToBorders={true}
+                          captureEvent={true}
+                          style={{
+                            backgroundColor: 'black',
+                          }}>
+                          <Image
+                            style={styles.zoomedImg}
+                            source={{uri: modalItem}}
+                          />
+                        </ReactNativeZoomableView>
+                      ) : null}
+                    </View>
+                  </Modal>
+                </View>
+                {/* end order number */}
+
+                {/* pick up address begin here */}
+                <View style={{marginLeft: 10, marginTop: 8}}>
+                  <Text style={styles.titleText}>Drop off Address</Text>
+                  <Text style={styles.pText}>
+                    Jl. ABC No. 5A, Banceuy, Bandung, Jawa Barat
+                  </Text>
+                </View>
+                {/* and pick up address */}
+                <View style={{marginLeft: 10, marginTop: 8}}>
+                  <Text style={styles.titleText}>Drop off Address</Text>
+                  <Text style={styles.pText}>PT Banceuy Tunggal Jaya </Text>
+                </View>
+              </View>
             </View>
           </View>
+          <SafeAreaView>
+            <View style={{margin: 10}}>
+              {statusPOD == 'unverified' ? (
+                <Button title="Menunggu Status Verified" disabled />
+              ) : (
+                <Button title="SELESAI" />
+              )}
+            </View>
+          </SafeAreaView>
         </View>
-      </View>
-      <SafeAreaView>
-        <View style={{margin: 10}}>
-          {statusPOD == 'unverified' ? (
-            <Button title="Menunggu Status Verified" disabled/>
-          ) : (
-            <Button title="SELESAI" />
-          )}
-        </View>
-      </SafeAreaView>
-    </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    width: width,
+  },
+  scrollView: {
+    flex: 1,
+    width: width,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   sideText: {
     fontSize: 12,
     transform: [{rotate: '-90deg'}],
@@ -297,7 +340,7 @@ const styles = StyleSheet.create({
     // paddingBottom:10,
     borderRadius: 5,
     marginTop: 25,
-    marginLeft: '0.2%',
+    marginLeft: '1%',
     position: 'absolute',
     shadowColor: '#000',
     shadowOffset: {

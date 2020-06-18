@@ -153,52 +153,105 @@ const UpdatePOD = ({data}) => {
       cropperToolbarColor: '#19B2FF',
       cropperToolbarTitle: 'Choose Image',
     })
-      .then((image) => {
-        setImageFyrs(image.path);
-        const options = {
-          url:
-            'https://d-storage.truckking.id/pictureorder/upload?orderID=TK-ORD-202061711075500000011',
-          path: image.path.replace('file://', ''),
-          method: 'POST',
-          field: 'file',
-          type: 'multipart',
-          notification: {
-            enabled: true,
+      .then(async (image) => {
+        setImageFyrs(image);
+        console.log(image.data);
+
+        const dataFoto = new FormData();
+        dataFoto.append('podProof[]', {
+          name: image.filename,
+          uri: image.path.replace('file://', ''),
+          type: 'image/jpeg',
+        });
+        dataFoto.append('podDescription', 'od-1234(edited-)');
+        dataFoto.append('orderID', dataOrd.orderID);
+        dataFoto.append('podUploadBy', dataOrd.order_trip.driverID);
+        dataFoto.append('podLastUpdateBy', dataOrd.order_trip.driverID);
+
+        let res = await fetch(
+          'http://dev.order.dejavu2.fiyaris.id/api/v1/order_prof_of_deliveries/',
+          {
+            method: 'post',
+            body: dataFoto,
+            headers: {
+              'Content-Type': 'application/json; charset=utf-8',
+              Authorization:
+                'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX3JvbGUiOiJEcml2ZXIiLCJhdWQiOlsiYWxsc3RvcmUiXSwiY29tcGFueV9pZCI6IlRLLVRSU0NNUC0yMDE5MTAwOTE4MzQ1MDAwMDAwMDEiLCJ1c2VyX2lkIjoiVEstRFJWLTIwMTkxMDA5MTIwODEwMDAwMDAwNCIsInVzZXJfbmFtZSI6InRhbmFrYS55b2dpQHlhaG9vLmNvbSIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdLCJjb21wYW55X25hbWUiOiJQVC4gRmFsbGluIFVuaXRlZCIsImV4cCI6MTU5MjQ4OTI2NiwiYXV0aG9yaXRpZXMiOlsiRHJpdmVyIl0sImp0aSI6ImE0MzFlMjJkLTc4ZDktNDM4Yy04YTljLTkzODQ3YTQ1MTk5ZSIsImNsaWVudF9pZCI6InRydWNraW5nY2xpZW50In0.HqZXwyCeiV4f7iz1tzMD_Q2s4awLUCqRdEPwXM8r7fc',
+            },
           },
-          useUtf8Charset: true,
-        };
+        );
 
-        Upload.startUpload(options)
-          .then((uploadId) => {
-            console.log('Upload started');
-            Upload.addListener('progress', uploadId, (res) => {
-              console.log(`Progress: ${res.progress}%`);
-            });
-            Upload.addListener('error', uploadId, (res) => {
-              console.log(`Error: ${res.error}%`);
-            });
-            Upload.addListener('cancelled', uploadId, (res) => {
-              console.log('Cancelled!');
-              console.log(res);
-            });
-            Upload.addListener('completed', uploadId, (res) => {
-              // data includes responseCode: number and responseBody: Object
-              console.log('Completed!');
-              // alert('Berhasil Upload Foto!');
+        let response = await res.json();
+        console.log(response);
 
-              var dat = [...poNumber];
-              var index = dat.findIndex((obj) => obj.orderNumber === odNumber);
-              dat[index].image = JSON.parse(res.responseBody).name;
+        // return axios
+        //   .post(
+        //     'http://dev.order.dejavu2.fiyaris.id/api/v1/order_prof_of_deliveries/',
+        //     dataFoto,
+        //     {
+        //       headers: {
+        //         Accept: 'application/json',
+        //         'Content-Type': 'application/json; charset=utf-8',
+        //         Authorization:
+        //           'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX3JvbGUiOiJEcml2ZXIiLCJhdWQiOlsiYWxsc3RvcmUiXSwiY29tcGFueV9pZCI6IlRLLVRSU0NNUC0yMDE5MTAwOTE4MzQ1MDAwMDAwMDEiLCJ1c2VyX2lkIjoiVEstRFJWLTIwMTkxMDA5MTIwODEwMDAwMDAwNCIsInVzZXJfbmFtZSI6InRhbmFrYS55b2dpQHlhaG9vLmNvbSIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdLCJjb21wYW55X25hbWUiOiJQVC4gRmFsbGluIFVuaXRlZCIsImV4cCI6MTU5MjQ4OTI2NiwiYXV0aG9yaXRpZXMiOlsiRHJpdmVyIl0sImp0aSI6ImE0MzFlMjJkLTc4ZDktNDM4Yy04YTljLTkzODQ3YTQ1MTk5ZSIsImNsaWVudF9pZCI6InRydWNraW5nY2xpZW50In0.HqZXwyCeiV4f7iz1tzMD_Q2s4awLUCqRdEPwXM8r7fc',
+        //       },
+        //       maxContentLength: -1,
+        //       method: 'post',
+        //       onUploadProgress: console.log('upload proses'),
+        //     },
+        //   )
+        //   .then((res) => {
+        //     console.log(res);
+        //   })
+        //   .catch((err) => {
+        //     alert(err);
+        //   });
 
-              setPoNumber(dat);
-              setModalVisible(false);
-              console.log(poNumber);
-            });
-          })
-          .catch((err) => {
-            console.log('Upload error!', err);
-            alert('Upload error!', err);
-          });
+        // setModalVisible(false);
+        // const options = {
+        //   url:
+        //     'https://d-storage.truckking.id/pictureorder/upload?orderID=TK-ORD-202061711075500000011',
+        //   path: image.path.replace('file://', ''),
+        //   method: 'POST',
+        //   field: 'file',
+        //   type: 'multipart',
+        //   notification: {
+        //     enabled: true,
+        //   },
+        //   useUtf8Charset: true,
+        // };
+
+        // Upload.startUpload(options)
+        //   .then((uploadId) => {
+        //     console.log('Upload started');
+        //     Upload.addListener('progress', uploadId, (res) => {
+        //       console.log(`Progress: ${res.progress}%`);
+        //     });
+        //     Upload.addListener('error', uploadId, (res) => {
+        //       console.log(`Error: ${res.error}%`);
+        //     });
+        //     Upload.addListener('cancelled', uploadId, (res) => {
+        //       console.log('Cancelled!');
+        //       console.log(res);
+        //     });
+        //     Upload.addListener('completed', uploadId, (res) => {
+        //       // data includes responseCode: number and responseBody: Object
+        //       console.log('Completed!');
+        //       // alert('Berhasil Upload Foto!');
+
+        //       var dat = [...poNumber];
+        //       var index = dat.findIndex((obj) => obj.orderNumber === odNumber);
+        //       dat[index].image = JSON.parse(res.responseBody).name;
+
+        //       setPoNumber(dat);
+        //       setModalVisible(false);
+        //       console.log(poNumber);
+        //     });
+        //   })
+        //   .catch((err) => {
+        //     console.log('Upload error!', err);
+        //     alert('Upload error!', err);
+        //   });
       })
       .catch((error) => {
         console.log(error);
@@ -256,6 +309,75 @@ const UpdatePOD = ({data}) => {
     console.log(poNumber);
   };
 
+  // const uploadPOD = (orderNumber, image, indexKe) => {
+  //   console.log('upload: ' + orderNumber);
+  //   console.log('upload: ' + image);
+
+  //   Alert.alert(
+  //     'Confirmation',
+  //     `Are you sure want to Upload foto with order number ${orderNumber}? Click OK cannot be cancelled`,
+  //     [
+  //       {
+  //         text: 'Cancel',
+  //         onPress: () => console.log('Cancel Pressed'),
+  //         style: 'cancel',
+  //       },
+  //       {
+  //         text: 'OK',
+  //         onPress: () => {
+  //           RNFetchBlob.fetch(
+  //             'POST',
+  //             'http://dev.order.dejavu2.fiyaris.id/api/v1/order_prof_of_deliveries/',
+  //             {
+  //               Authorization:
+  //                 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX3JvbGUiOiJEcml2ZXIiLCJhdWQiOlsiYWxsc3RvcmUiXSwiY29tcGFueV9pZCI6IlRLLVRSU0NNUC0yMDE5MTAwOTE4MzQ1MDAwMDAwMDEiLCJ1c2VyX2lkIjoiVEstRFJWLTIwMTkxMDA5MTIwODEwMDAwMDAwNCIsInVzZXJfbmFtZSI6InRhbmFrYS55b2dpQHlhaG9vLmNvbSIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdLCJjb21wYW55X25hbWUiOiJQVC4gRmFsbGluIFVuaXRlZCIsImV4cCI6MTU5MjQ4OTI2NiwiYXV0aG9yaXRpZXMiOlsiRHJpdmVyIl0sImp0aSI6ImE0MzFlMjJkLTc4ZDktNDM4Yy04YTljLTkzODQ3YTQ1MTk5ZSIsImNsaWVudF9pZCI6InRydWNraW5nY2xpZW50In0.HqZXwyCeiV4f7iz1tzMD_Q2s4awLUCqRdEPwXM8r7fc',
+  //               otherHeader: 'foo',
+  //               'Content-Type': 'multipart/form-data',
+  //             },
+  //             [
+  //               {
+  //                 name: 'podProof[]',
+  //                 filename: `${orderNumber}.png`,
+  //                 type: 'image/png',
+  //                 data: image,
+  //               },
+  //               {
+  //                 name: 'podDescription',
+  //                 data: orderNumber + ` (edited-#${indexKe + 1})`,
+  //               },
+  //               {name: 'orderID', data: dataOrd.orderID},
+  //               // {name: 'shipmentID', data: 'TK-LOADS-202051208030216900000004'},
+  //               {name: 'podUploadBy', data: dataOrd.order_trip.driverID},
+  //               {name: 'podLastUpdateBy', data: dataOrd.order_trip.driverID},
+  //             ],
+  //           )
+  //             .then((resp) => {
+  //               console.log(JSON.parse(resp.data));
+
+  //               if (JSON.parse(resp.data).success === true) {
+  //                 alert(
+  //                   'Upload Foto Success. ' + JSON.parse(resp.data).message,
+  //                 );
+  //                 var dat = [...poNumber];
+  //                 var index = dat.findIndex(
+  //                   (obj) => obj.orderNumber === orderNumber,
+  //                 );
+  //                 dat[index].isCompleted = true;
+  //                 dat[index].isUpdated = false;
+  //                 setPoNumber(dat);
+  //                 console.log(poNumber);
+  //               }
+  //             })
+  //             .catch((err) => {
+  //               console.log(err);
+  //             });
+  //         },
+  //       },
+  //     ],
+  //     {cancelable: true},
+  //   );
+  // };
+
   const uploadPOD = (orderNumber, image, indexKe) => {
     console.log('upload: ' + orderNumber);
     console.log('upload: ' + image);
@@ -271,52 +393,42 @@ const UpdatePOD = ({data}) => {
         },
         {
           text: 'OK',
-          onPress: () => {
-            RNFetchBlob.fetch(
-              'POST',
+          onPress: async () => {
+            let formPOD = new FormData();
+
+            formPOD.append('podProof[]', {
+              uri: imageFyrs.path,
+              name: imageFyrs.filename,
+              type: imageFyrs.mime,
+            });
+            formPOD.append(
+              'podDescription',
+              orderNumber + `(edited-#${indexKe + 1})`,
+            );
+            formPOD.append('orderID', dataOrd.orderID);
+            formPOD.append('podUploadBy', dataOrd.order_trip.driverID);
+            formPOD.append('podLastUpdateBy', dataOrd.order_trip.driverID);
+
+            await fetch(
               'http://dev.order.dejavu2.fiyaris.id/api/v1/order_prof_of_deliveries/',
               {
-                Authorization:
-                  'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX3JvbGUiOiJEcml2ZXIiLCJhdWQiOlsiYWxsc3RvcmUiXSwiY29tcGFueV9pZCI6IlRLLVRSU0NNUC0yMDE5MTAwOTE4MzQ1MDAwMDAwMDEiLCJ1c2VyX2lkIjoiVEstRFJWLTIwMTkxMDA5MTIwODEwMDAwMDAwNCIsInVzZXJfbmFtZSI6InRhbmFrYS55b2dpQHlhaG9vLmNvbSIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdLCJjb21wYW55X25hbWUiOiJQVC4gRmFsbGluIFVuaXRlZCIsImV4cCI6MTU5MjQ4OTI2NiwiYXV0aG9yaXRpZXMiOlsiRHJpdmVyIl0sImp0aSI6ImE0MzFlMjJkLTc4ZDktNDM4Yy04YTljLTkzODQ3YTQ1MTk5ZSIsImNsaWVudF9pZCI6InRydWNraW5nY2xpZW50In0.HqZXwyCeiV4f7iz1tzMD_Q2s4awLUCqRdEPwXM8r7fc',
-                otherHeader: 'foo',
-                'Content-Type': 'multipart/form-data',
+                method: 'POST',
+                body: formPOD,
+                headers: {
+                  Authorization:
+                    'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX3JvbGUiOiJEcml2ZXIiLCJhdWQiOlsiYWxsc3RvcmUiXSwiY29tcGFueV9pZCI6IlRLLVRSU0NNUC0yMDE5MTAwOTE4MzQ1MDAwMDAwMDEiLCJ1c2VyX2lkIjoiVEstRFJWLTIwMTkxMDA5MTIwODEwMDAwMDAwNCIsInVzZXJfbmFtZSI6InRhbmFrYS55b2dpQHlhaG9vLmNvbSIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdLCJjb21wYW55X25hbWUiOiJQVC4gRmFsbGluIFVuaXRlZCIsImV4cCI6MTU5MjQ4OTI2NiwiYXV0aG9yaXRpZXMiOlsiRHJpdmVyIl0sImp0aSI6ImE0MzFlMjJkLTc4ZDktNDM4Yy04YTljLTkzODQ3YTQ1MTk5ZSIsImNsaWVudF9pZCI6InRydWNraW5nY2xpZW50In0.HqZXwyCeiV4f7iz1tzMD_Q2s4awLUCqRdEPwXM8r7fc',
+                },
+                redirect: 'follow',
               },
-              [
-                {
-                  name: 'podProof[]',
-                  filename: `${orderNumber}.png`,
-                  type: 'image/png',
-                  data: image,
-                },
-                {
-                  name: 'podDescription',
-                  data: orderNumber + ` (edited-#${indexKe + 1})`,
-                },
-                {name: 'orderID', data: dataOrd.orderID},
-                // {name: 'shipmentID', data: 'TK-LOADS-202051208030216900000004'},
-                {name: 'podUploadBy', data: dataOrd.order_trip.driverID},
-                {name: 'podLastUpdateBy', data: dataOrd.order_trip.driverID},
-              ],
             )
+              .then((resp) => resp.json())
               .then((resp) => {
-                console.log(JSON.parse(resp.data));
-
-                if (JSON.parse(resp.data).success === true) {
-                  alert(
-                    'Upload Foto Success. ' + JSON.parse(resp.data).message,
-                  );
-                  var dat = [...poNumber];
-                  var index = dat.findIndex(
-                    (obj) => obj.orderNumber === orderNumber,
-                  );
-                  dat[index].isCompleted = true;
-                  dat[index].isUpdated = false;
-                  setPoNumber(dat);
-                  console.log(poNumber);
-                }
+                console.log('upload success', resp);
+                alert('Upload success!!');
               })
               .catch((err) => {
-                console.log(err);
+                console.log('upload error', err);
+                alert('Upload failed');
               });
           },
         },
