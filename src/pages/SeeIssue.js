@@ -13,11 +13,11 @@ import {
   Dimensions,
   Modal,
   TouchableOpacity,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import ReactNativeZoomableView from '@dudigital/react-native-zoomable-view/src/ReactNativeZoomableView';
 import axios from 'axios';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import {TouchableWithoutFeedback} from 'react-native-gesture-handler';
 import ServiceTripAPI from '../api/ServiceTrip';
 
 let width = Dimensions.get('screen').width / 3.7;
