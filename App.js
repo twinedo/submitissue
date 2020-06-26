@@ -6,13 +6,15 @@ import SeeIssue from './src/pages/SeeIssue';
 import ActiveTaskUnloading from './src/pages/ActiveTaskUnloading';
 import ActiveTaskDropOff from './src/pages/ActiveTaskDropOff4';
 import UpdatePOD from './src/pages/UpdatePODFys2';
+import FlatlistPage from './src/pages/FlatlistPage';
 
 console.disableYellowBox = true;
 const App = () => {
   return (
     <>
       {/* <ActiveTaskUnloading /> */}
-      <UpdatePOD />
+      {/* <UpdatePOD /> */}
+      <FlatlistPage />
       {/* <ActiveTaskDropOff /> */}
       {/* <SeeIssue /> */}
       {/* <FixSubmit2 /> */}
