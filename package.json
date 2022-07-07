@@ -15,7 +15,7 @@
     "@react-native-community/picker": "^1.3.0",
     "axios": "^0.19.2",
     "jshint": "^2.11.1",
-    "moment": "^2.25.3",
+    "moment": "^2.29.4",
     "react": "16.11.0",
     "react-native": "0.62.2",
     "react-native-actions-sheet": "^0.2.6",
